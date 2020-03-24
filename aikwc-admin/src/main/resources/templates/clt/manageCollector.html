@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html 
+	xmlns:th="http://www.thymeleaf.org" 
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout/layout-clt">
+
+      <!-- Main Content -->
+      <div id="content" layout:fragment="content" >
+		<th:block th:insert="comm/top :: top"> </th:block>
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Collectors</h1>
+          </div>
+          
+		<div class="row">
+          <div class="col">
+            <div class="p-5">
+              <form name="collectorForm" id="collectorForm" method="POST" th:action="@{/manage/collector/save}">
+              <div class="form-group row">
+			    <div class="col-sm-6 mb-3 mb-sm-0">
+					<label for="selectGroup">수집 그룹명(코드)</label>
+					<select class="form-control" name="grp" onchange="groupSelect(this)">
+						<option value="">선택</option>
+					  <option th:each="gObj:${groupList}" th:value="${gObj.pk}" th:text="${gObj.name}+'('+${gObj.code}+')'"></option>
+					</select>
+			    </div>
+			     <div class="col">
+					<label for="selectSite">수집 사이트명</label>
+					<select class="form-control" id="selectSite" name="site">
+					  <option value="">선택</option>
+					</select>
+			    </div>
+			    </div>
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <input type="text" class="form-control" id="code" name="code" placeholder="수집원 코드" required>
+<!--                     <div class="text"><a class="small" href="login.html">Already have an account? Login!</a></div> -->
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="수집원명" required>
+                  </div>
+                </div>
+                <a href="javascript:formSubmit('collectorForm')" class="btn btn-primary btn-user btn-block">
+                  Register Collector
+                </a>
+                <hr>
+              </form>
+            </div>
+          </div>
+        </div>
+		
+		
+		<!-- LIST  -->
+		<div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Site List</h6>
+            </div>
+            <div class="card-body">
+<!--             <div class="table-responsive"> -->
+            	<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>group code</th>
+				      <th>group name</th>
+				      <th>site code</th>
+				      <th>site name</th>
+				      <th>collector code</th>
+				      <th>collector name</th>
+				      <th>use_yn</th>
+				      <th>edit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="cObj:${collectorList}">
+				      <td th:text="${cObj.toSite.group.code}">out</td>
+				      <td th:text="${cObj.toSite.group.name}">산하기관</td>
+				      <td th:text="${cObj.toSite.code}">08</td>
+				      <td th:text="${cObj.toSite.name}">인천테크노파크</td>
+				      <td th:text="${cObj.code}">001</td>
+				      <td th:text="${cObj.name}">지원사업</td>
+				      <td th:text="${cObj.useyn}">N</td>
+				      <td><a><i class="fas fa-edit"></i></a> &nbsp; <a><i class="fas fa-trash"></i></a></td>
+				    </tr>
+                </tbody>
+                </table>
+                </div>
+        </div>
+
+		</div>
+      </div>
+      <!-- End of Main Content -->
+
+
+</html>

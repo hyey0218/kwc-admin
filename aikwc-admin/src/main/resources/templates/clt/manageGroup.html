@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html 
+	xmlns:th="http://www.thymeleaf.org" 
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout/layout-clt">
+
+      <!-- Main Content -->
+      <div id="content" layout:fragment="content" >
+		<th:block th:insert="comm/top :: top"> </th:block>
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Groups</h1>
+          </div>
+          
+		<div class="row">
+          <div class="col">
+            <div class="p-3">
+              <form name="groupForm" id="groupForm" th:action="@{/collector/group/save}" method="POST" >
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <input type="text" class="form-control" id="code" name="code" placeholder="수집 그룹 코드" required>
+<!--                     <div class="text"><a class="small" href="login.html">Already have an account? Login!</a></div> -->
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="수집 그룹명" required>
+                  </div>
+                </div>
+                <a href="javascript:formSubmit('groupForm')" class="btn btn-primary btn-user btn-block">
+                  Register Group
+                </a>
+                <hr>
+              </form>
+            </div>
+          </div>
+        </div>
+		
+		
+		<!-- LIST  -->
+		<div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Group List</h6>
+            </div>
+            <div class="card-body">
+            <div class="table-responsive">
+            	<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>group code</th>
+				      <th>group name</th>
+				      <th>edit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="gObj:${groupList}">
+                      <td th:text="${gObj.code}"> </td>
+				      <td th:text="${gObj.name}"></td>
+				      <td><a th:onclick="'javascript:openGroupEdit('+ ${gObj.pk} +')' "><i class="fas fa-edit"></i></a> 
+				      		&nbsp; <a th:onclick="'javascript:deleteGroup('+ ${gObj.pk} +')' " ><i class="fas fa-trash"></i></a></td>
+                    </tr>
+                </tbody>
+                </table>
+                </div>
+                </div>
+        </div>
+
+		</div>
+      </div>
+      <!-- End of Main Content -->
+
+
+</html>

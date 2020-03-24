@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html
+	xmlns:th="http://www.thymeleaf.org" 
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="">
+<meta name="author" content="">
+<title>Konan Web Crawler</title>
+
+<!-- Custom fonts for this template-->
+  <link th:href="@{/static/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link th:href="@{/static/css/sb-admin-2.css}" rel="stylesheet">
+
+</head>
+<body id="page-top">
+<!-- Page Wrapper -->
+<div id="wrapper">
+<th:block th:insert="comm/left :: left"> </th:block>
+<!-- Content Wrapper -->
+<div id="content-wrapper" class="d-flex flex-column">
+	<section layout:fragment="content"></section>
+	<th:block th:insert="comm/footer :: footer"> </th:block>
+</div>
+</div>
+
+<!------------------------------------ 공통 컨텐츠 --------------------------------------->
+     
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Logout Modal -->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">기관 등록</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form name="agencyForm" id="agencyForm" th:action="@{/agency/insert}" method="POST">
+		<div class="form-group">
+			<label for="agencyCode">기관 코드</label>
+			<input type="text" class="form-control" id="agencyCode" name="agencyCode">
+			<small id="agencyHelp" class="form-text text-muted">미입력 시 자동으로 발급됩니다.</small>
+		</div>
+		<div class="form-group">
+			<label for="agencyName">기관명</label>
+			<input type="text" class="form-control" id="agencyName" name="agencyName" required>
+		</div>
+		<div class="form-group form-check">
+			<input type="checkbox" class="form-check-input" id="agencyUseYn" name="agencyUseYn" value="Y" checked>
+			<label class="form-check-label" for="agencyUseYn">사용 여부</label>
+		</div>
+		</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="formSubmit('agencyForm')" data-dismiss="modal">Save</button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+<!------------------------------------------------------------------------------->
+
+<!-- Bootstrap core JavaScript-->
+<script th:src="@{/static/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/static/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Core plugin JavaScript-->
+<script th:src="@{/static/vendor/jquery-easing/jquery.easing.min.js}"></script>
+
+<!-- Custom scripts for all pages-->
+<script th:src="@{/static/js/sb-admin-2.js}"></script>
+
+<!-- Page level plugins -->
+<script th:src="@{/static/vendor/chart.js/Chart.min.js}"></script>
+
+<!-- Page level custom scripts -->
+<script th:src="@{/static/js/demo/chart-area-demo.js}"></script>
+<script th:src="@{/static/js/demo/chart-pie-demo.js}"></script>
+</body>
+</html>
