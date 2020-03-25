@@ -22,9 +22,9 @@ public class AsyncConfig {
 	@Bean(name="kwcExecutor")
 	public Executor kwcExecutor() {
 		ThreadPoolTaskExecutor tpte = new ThreadPoolTaskExecutor();
-		tpte.setCorePoolSize(2); // Thread 기본사이즈
-		tpte.setMaxPoolSize(3); // 최대 사이즈
-		tpte.setQueueCapacity(10); // Max Thread가 도작하는 경우 대기하는 queue 사이즈
+		tpte.setCorePoolSize(10); // Thread 기본사이즈
+		tpte.setMaxPoolSize(10); // 최대 사이즈
+		tpte.setQueueCapacity(5); // Max Thread가 도작하는 경우 대기하는 queue 사이즈
 		//thread 와 queue 가 전부 찼을 경우 Exception 
 		tpte.setThreadNamePrefix("KWC"); // KWC-1 ,KWC-2 ...
 //		tpte.initialize();

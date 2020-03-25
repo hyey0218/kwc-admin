@@ -15,7 +15,7 @@ function groupSelect(obj){
 	let requestUrl = "/manage/siteInGroup";
 	let jObj = {}
 	jObj.grp = $(obj).val();
-	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj);
+	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj).result;
 	$("#selectSite > option:gt(0)").remove();
 	if(retJson){
 		let $elementSelect = $("#selectSite");
@@ -33,7 +33,7 @@ function siteSelect(obj){
 	let requestUrl = "/manage/collectorInSite";
 	let jObj = {};
 	jObj.site = $(obj).val();
-	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj);
+	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj).result;
 	$("#selectCollector > option:gt(0)").remove();
 	if(retJson){
 		let $elementSelect = $("#selectCollector");
@@ -52,7 +52,7 @@ function collectorSelect(obj){
 	let requestUrl = "/manage/detail/info";
 	let jObj = {};
 	jObj.pk = $(obj).val();
-	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj);
+	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj).result;
 	if(retJson){
 		let form = $("#collectDetailForm")[0];
 		$(form).find('[name=startUrl]').val(retJson.startUrl)

@@ -1,3 +1,4 @@
+var _dataTab;
 $(document).ready(function(){
 	console.log(2+_menuNo);
 	$("#accordionSidebar > li:eq("+(2+_menuNo)+")").addClass("active");
@@ -11,19 +12,27 @@ $(document).ready(function(){
 	}
 	
 	sock.onmessage = function(message) { 
-		let collectors = JSON.parse(message.data);
-		$(collectors).each(function(i,j){
-			//1. button
-			let obtn = $("#statusBtn_"+j.pk);
-			$(obtn).children().remove();
-			$(obtn).append(runningSatus(j.status,j.pk))
-			$(obtn).prev().val(''); // text
-			
-			//2. status
-			let otd = $("#statusTd_"+j.pk);
-			$(otd).text(j.status);
-		})
+		let jObj = JSON.parse(message.data);
+		if(jObj.taskCnt){
+			taskProgress(jObj.taskCnt);
+		}
+		
+		if(jObj.collectors){
+			let collectors = jObj.collectors;
+			$(collectors).each(function(i,j){
+				//1. button
+				let obtn = $("#statusBtn_"+j.pk);
+				$(obtn).children().remove();
+				$(obtn).append(runningSatus(j.status,j.pk))
+				$(obtn).prev().val(''); // text
+				
+				//2. status
+				let otd = $("#statusTd_"+j.pk);
+				$(otd).text(j.status);
+			})
+		}
 	}
+
 })
 
 function simulatorList(){
@@ -32,7 +41,8 @@ function simulatorList(){
 	let requestUrl = "/simulator/collectorList";
 	let jObj = {};
 	jObj.site = site;
-	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj);
+	let res = getJSONAjaxMethod(requestUrl, "POST", jObj);
+	let retJson = res.result;
 	if(retJson){
 		var $tbody = $("#simList");
 		$tbody.children().remove();
@@ -64,13 +74,14 @@ function simulatorList(){
 			$tbody.append($tr);
 		})
 	}
-	
-	$("#collectorTable").DataTable();
+	console.log(res);
+	taskProgress(res.taskCnt);
+	_dataTab = $("#collectorTable").DataTable();
 }
 
 function execKwc(pk){
 	let obj = $("#statusBtn_"+pk);
-	let requestUrl = "/crawl";
+	let requestUrl = "/simulator/crawl";
 	let json = null;
 	let pageRange = $(obj).prev().val();
 	// page input validation start//
@@ -118,4 +129,13 @@ function runningSatus(stat,pk){
 		$button = $("<button>",{'class':"btn btn-danger", 'type':"button", 'id':"addon"+pk, 'onclick':'execKwc('+pk+')' }).text("start")
 	}
 	return $button;	
+}
+
+function taskProgress(curTask){
+	console.log(">>>"+curTask);
+	let tasks = 10;
+	let perTask = ((tasks-curTask)/tasks) * 100;
+	$("#taskProg").css("width" , perTask+"%");
+	$("#taskCnt").text(tasks-curTask);
+	
 }

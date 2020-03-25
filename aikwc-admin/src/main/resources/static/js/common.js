@@ -38,7 +38,7 @@ function getJSONAjaxMethod(requestUrl, reqType, sendData){
 		async: false,
 		cache: false,
 		success: function(data){
-			json = data.result;
+			json = data;
 		},error: function(XMLHttpRequest, textStatus, errorThrown) { 
 			console.log("Status: " + textStatus);
 		},timeout: 3000

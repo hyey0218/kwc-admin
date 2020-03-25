@@ -19,6 +19,7 @@ import konantech.ai.aikwc.common.utils.CommonUtil;
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.repository.CollectorRepository;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 @Component
 public class CheckStatusHandler extends TextWebSocketHandler {
@@ -27,6 +28,9 @@ public class CheckStatusHandler extends TextWebSocketHandler {
 	
 	@Autowired
 	private CollectorRepository collectorRepository;
+	
+	@Autowired
+	AsyncConfig asyncConfig;
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -61,15 +65,31 @@ public class CheckStatusHandler extends TextWebSocketHandler {
 			WebSocketSession session = iterator.next();
 			List<Collector> collectors = collectorRepository.findByUseyn("Y");
 //			List<Collector> collectors = collectorRepository.findStatus();
+
 			
+			JSONObject obj = new JSONObject();
 			JSONArray arr = (JSONArray) CommonUtil.parseToJson(collectors);
-			System.out.println(arr.toString());
+			obj.put("collectors", arr);
+			System.out.println(obj.toString());
 			
-			TextMessage message = new TextMessage(arr.toString());
+			TextMessage message = new TextMessage(obj.toString());
 			session.sendMessage(message);
 			
 		}
 		
+	}
+	
+	public void sendTaskCnt() throws IOException {
+		
+		Iterator<WebSocketSession> iterator = sessionList.iterator();
+		while(iterator.hasNext()) {
+			WebSocketSession session = iterator.next();
+			System.out.println(">>>>>>>>>>>>>> cnt: "+asyncConfig.getTaskCount());
+			JSONObject obj = new JSONObject();
+			obj.put("taskCnt", asyncConfig.getTaskCount());
+			TextMessage message = new TextMessage(obj.toString());
+			session.sendMessage(message);
+		}
 	}
 	
 
