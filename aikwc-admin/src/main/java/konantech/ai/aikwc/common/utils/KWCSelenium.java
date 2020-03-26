@@ -39,7 +39,7 @@ public abstract class KWCSelenium{
 		this.driverPath = driverPath;
 	}
 	
-	public void openBrowser() {
+	public void openBrowser() throws Exception{
 		System.setProperty("webdriver.chrome.driver", driverPath); 
 		ChromeOptions options = new ChromeOptions();
 		options.setPageLoadStrategy(PageLoadStrategy.EAGER); // only HTML document loading, (discards loding of css/image...)

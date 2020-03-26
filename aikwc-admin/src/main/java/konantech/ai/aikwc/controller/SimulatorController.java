@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Future;
+import java.util.function.Supplier;
 
 import javax.annotation.Resource;
 
@@ -83,7 +87,7 @@ public class SimulatorController {
 	
 	@RequestMapping("/crawl")
 	@ResponseBody
-	public void getCrawl(@RequestBody Collector collector) {
+	public void getCrawl(@RequestBody Collector collector) throws Exception {
 		
 		Collector selectedCollector = collectorService.getCollectorInfo(collector.getPk());
 		selectedCollector.setStartPage(collector.getStartPage());
@@ -92,19 +96,17 @@ public class SimulatorController {
 		String agencyName = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
 		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
 		
-		//1. update Running status
+		//1. update Running status / send websocket message
 		collectorService.updateStatus(collector.getPk(), "R");
-		try {
-			crawlService.webCrawl(selectedCollector);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				statusHandler.sendTaskCnt();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		
+		CompletableFuture cf = crawlService.webCrawl(selectedCollector);
+		statusHandler.sendTaskCnt(asyncConfig.getTaskCount());
+		
+		CompletableFuture<Void> after = cf.handle((res,ex) -> {
+			statusHandler.sendTaskCnt(asyncConfig.getAfterTaskCount());
+			return null;
+		});
+		
 	}
 }
 
