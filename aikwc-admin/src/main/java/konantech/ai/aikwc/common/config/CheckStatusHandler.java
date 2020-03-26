@@ -28,9 +28,6 @@ public class CheckStatusHandler extends TextWebSocketHandler {
 	
 	@Autowired
 	private CollectorRepository collectorRepository;
-	
-	@Autowired
-	AsyncConfig asyncConfig;
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -79,16 +76,20 @@ public class CheckStatusHandler extends TextWebSocketHandler {
 		
 	}
 	
-	public void sendTaskCnt() throws IOException {
+	public void sendTaskCnt(int cnt) {
 		
 		Iterator<WebSocketSession> iterator = sessionList.iterator();
 		while(iterator.hasNext()) {
 			WebSocketSession session = iterator.next();
-			System.out.println(">>>>>>>>>>>>>> cnt: "+asyncConfig.getTaskCount());
 			JSONObject obj = new JSONObject();
-			obj.put("taskCnt", asyncConfig.getTaskCount());
+			obj.put("taskCnt", cnt);
 			TextMessage message = new TextMessage(obj.toString());
-			session.sendMessage(message);
+			try {
+				session.sendMessage(message);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

@@ -1,6 +1,5 @@
 var _dataTab;
 $(document).ready(function(){
-	console.log(2+_menuNo);
 	$("#accordionSidebar > li:eq("+(2+_menuNo)+")").addClass("active");
 	simulatorList();
 	
@@ -13,8 +12,9 @@ $(document).ready(function(){
 	
 	sock.onmessage = function(message) { 
 		let jObj = JSON.parse(message.data);
-		if(jObj.taskCnt){
-			taskProgress(jObj.taskCnt);
+		console.log(jObj);
+		if(jObj.taskCnt != undefined){
+			taskProgress(Number(jObj.taskCnt));
 		}
 		
 		if(jObj.collectors){
@@ -74,7 +74,6 @@ function simulatorList(){
 			$tbody.append($tr);
 		})
 	}
-	console.log(res);
 	taskProgress(res.taskCnt);
 	_dataTab = $("#collectorTable").DataTable();
 }
@@ -132,10 +131,10 @@ function runningSatus(stat,pk){
 }
 
 function taskProgress(curTask){
-	console.log(">>>"+curTask);
 	let tasks = 10;
 	let perTask = ((tasks-curTask)/tasks) * 100;
 	$("#taskProg").css("width" , perTask+"%");
-	$("#taskCnt").text(tasks-curTask);
+	$("#availableTask").text(tasks-curTask);
+	$("#availableTask").val(tasks-curTask);
 	
 }
