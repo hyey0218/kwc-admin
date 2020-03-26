@@ -6,8 +6,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
@@ -18,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import konantech.ai.aikwc.common.config.AsyncConfig;
@@ -43,14 +40,13 @@ public class CrawlServiceImpl implements CrawlService {
 	@Autowired
 	CrawlRepository crawlRepository;
 	
-	@Autowired
-	AsyncConfig asyncConfig;
-	
 	@Async("kwcExecutor")
-	public CompletableFuture webCrawl(Collector collector ) throws Exception {
+	public void webCrawl(Collector collector ) throws Exception {
 		KWCSelenium kwc = new KWCSelenium(driverPath) {
 			@Override
 			public int crawlWeb(Object collector ,JpaRepository repository) {
+				System.out.println(">>>>>>>>>>>>crawlWeb");
+//				this.startUrl = collector.getStartUrl();
 				try {
 					Collector c ;
 					if(collector instanceof Collector)
@@ -76,6 +72,7 @@ public class CrawlServiceImpl implements CrawlService {
 					
 					crawlPerPage(startPage, endPage, c, repo);
 				}catch(Exception e) {
+					System.out.println(">>>>>>>>>>>crawlWeb() : error");
 					e.printStackTrace();
 					return 1;
 				}finally {
@@ -117,13 +114,14 @@ public class CrawlServiceImpl implements CrawlService {
 							try {
 								obj.setWriteTime(CommonUtil.stringToLocalDateTime(webDriver.findElement(writeDate).getText(), c.getWdatePattern(),isTimePattern) );
 							}catch(java.time.format.DateTimeParseException de){
-//								System.out.println("****************** DateTimeParseException ********************");
+								System.out.println("****************** DateTimeParseException ********************");
 								obj.setWtimeStr(webDriver.findElement(writeDate).getText());
 							}
 							dataList.add(obj);
 							webDriver.navigate().back();
 							Thread.sleep(5000);
 						}catch(org.openqa.selenium.NoSuchElementException ex) { //
+							ex.printStackTrace();
 //									webDriver.close();
 //									webDriver.switchTo().window(listWin);
 //									continue;
@@ -138,6 +136,9 @@ public class CrawlServiceImpl implements CrawlService {
 			}
 		};
 		
+		// crawling 시작
+		
+			
 		//2. crawling 페이지별로  insert하는 크롤링
 		int result = kwc.crawlWeb(collector, crawlRepository);
 		
@@ -148,7 +149,6 @@ public class CrawlServiceImpl implements CrawlService {
 			collectorService.updateStatus(collector.getPk(), "FW");
 			throw new Exception("crawlWeb Exception...");
 		}
-		
-		return CompletableFuture.completedFuture(result);
+			
 	}
 }
