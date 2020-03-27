@@ -71,6 +71,9 @@ public class Collector {
 	String sCode;
 //	@Transient
 	String sName;
+	
+	@Transient
+	String channel;
 
 	
 	public Collector() {}

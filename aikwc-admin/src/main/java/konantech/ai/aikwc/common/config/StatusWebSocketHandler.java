@@ -22,37 +22,30 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Component
-public class CheckStatusHandler extends TextWebSocketHandler {
+public class StatusWebSocketHandler extends TextWebSocketHandler {
 	
 	private Set<WebSocketSession> sessionList = new HashSet<WebSocketSession>();
 	
 	@Autowired
 	private CollectorRepository collectorRepository;
-	
-	@Autowired
-	AsyncConfig asyncConfig;
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		System.out.println(">>>>>>>>>>>>>>>>>>connection established");
 		sessionList.add(session);
 	}
 
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-		// TODO Auto-generated method stub
 		super.handleTextMessage(session, message);
 	}
 
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-		System.out.println(">>>>>>>>>>>>>>>>>>>connection closed");
 		sessionList.remove(session);
 	}
 
 	@Override
 	public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>websocket error");
 		sessionList.remove(session);
 	}
 	
@@ -65,12 +58,10 @@ public class CheckStatusHandler extends TextWebSocketHandler {
 			WebSocketSession session = iterator.next();
 			List<Collector> collectors = collectorRepository.findByUseyn("Y");
 //			List<Collector> collectors = collectorRepository.findStatus();
-
 			
 			JSONObject obj = new JSONObject();
 			JSONArray arr = (JSONArray) CommonUtil.parseToJson(collectors);
 			obj.put("collectors", arr);
-			System.out.println(obj.toString());
 			
 			TextMessage message = new TextMessage(obj.toString());
 			session.sendMessage(message);
@@ -79,16 +70,20 @@ public class CheckStatusHandler extends TextWebSocketHandler {
 		
 	}
 	
-	public void sendTaskCnt() throws IOException {
+	public void sendTaskCnt(int cnt) {
 		
 		Iterator<WebSocketSession> iterator = sessionList.iterator();
 		while(iterator.hasNext()) {
 			WebSocketSession session = iterator.next();
-			System.out.println(">>>>>>>>>>>>>> cnt: "+asyncConfig.getTaskCount());
 			JSONObject obj = new JSONObject();
-			obj.put("taskCnt", asyncConfig.getTaskCount());
+			obj.put("taskCnt", cnt);
 			TextMessage message = new TextMessage(obj.toString());
-			session.sendMessage(message);
+			try {
+				session.sendMessage(message);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

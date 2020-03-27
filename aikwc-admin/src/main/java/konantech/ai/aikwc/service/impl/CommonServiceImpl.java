@@ -1,5 +1,6 @@
 package konantech.ai.aikwc.service.impl;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import konantech.ai.aikwc.common.config.MsgWebSocketHandler;
 import konantech.ai.aikwc.entity.Agency;
+import konantech.ai.aikwc.entity.KLog;
 import konantech.ai.aikwc.repository.AgencyRepository;
+import konantech.ai.aikwc.repository.KLogRepository;
 import konantech.ai.aikwc.service.CommonService;
 
 @Service("CommonService")
@@ -18,6 +22,11 @@ public class CommonServiceImpl implements CommonService {
 	@Autowired
 	AgencyRepository agencyRepository;
 	
+	@Autowired
+	KLogRepository logRepository;
+	
+	@Autowired
+	MsgWebSocketHandler msgHandler;
 	
 	public Map<String,Object> commInfo(int agencyNum) {
 
@@ -33,5 +42,15 @@ public class CommonServiceImpl implements CommonService {
 			map.put("groupList", selAgency.getGroup());
 		map.put("agencyList", agencyList);
 		return map;
+	}
+	
+	public void saveLog(KLog log) {
+//		logRepository.saveAndFlush(log);
+		
+		try {
+			msgHandler.sendLogMassage(log.getAgency());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

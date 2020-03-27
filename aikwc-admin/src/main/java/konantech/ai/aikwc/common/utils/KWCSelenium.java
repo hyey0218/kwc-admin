@@ -18,8 +18,12 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.KLog;
+import konantech.ai.aikwc.repository.KLogRepository;
+import konantech.ai.aikwc.service.CommonService;
 
 public abstract class KWCSelenium{
 	
@@ -35,11 +39,14 @@ public abstract class KWCSelenium{
 	protected By writeDate;
 	protected By content;
 	
+	public KLog log;
+	
 	public KWCSelenium(String driverPath) {
 		this.driverPath = driverPath;
+		this.log = new KLog();
 	}
 	
-	public void openBrowser() {
+	public void openBrowser() throws Exception{
 		System.setProperty("webdriver.chrome.driver", driverPath); 
 		ChromeOptions options = new ChromeOptions();
 		options.setPageLoadStrategy(PageLoadStrategy.EAGER); // only HTML document loading, (discards loding of css/image...)
@@ -52,6 +59,7 @@ public abstract class KWCSelenium{
 		this.webDriver = ThreadGuard.protect(webDriver);
 	}
 	public void closeBrowser() {
+		
 		if( this.webDriver != null) {
 			this.webDriver.quit();
 		}
@@ -65,5 +73,14 @@ public abstract class KWCSelenium{
 	 * @throws Exception
 	 */
 	public abstract int crawlWeb(Object collector, JpaRepository repository) throws Exception;
+	
+	/**
+	 * 로그 테이블 적재
+	 */
+	public void insertLog(CommonService service) {
+		if(!StringUtils.isEmpty(log.getAgency()) ) {
+			service.saveLog(log);
+		}
+	}
 	
 }

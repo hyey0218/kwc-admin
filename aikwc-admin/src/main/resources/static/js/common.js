@@ -1,5 +1,27 @@
 $(document).ready(function(){
 	pageInitialize();
+	
+	//Web Sockect
+	var sock = new SockJS("/ws/getLogMsg");
+//	sock.send({'agency':8});
+	
+	sock.onopen = function(){
+		console.log("open")
+	}
+	
+	sock.onmessage = function(message) { 
+		let jObj = JSON.parse(message.data);
+		console.log(jObj);
+		
+		if(jObj.logs){
+			let logs = jObj.logs;
+			let $msgDiv = $("#logMsg").children().remove();
+			$(logs).each(function(i,j){
+				topMessage($msgDiv, j);
+			})
+		}
+	}
+	
 })
 // form contents --> json
 $.fn.serializeObject = function() {
@@ -88,22 +110,17 @@ function leftMenuFunc(){
 				})
 			})
 		})
-//		let $sideMens = $("#sidebar > div > div > div.collapse");
-//		var iconMinus = $("<i>", {class: "fa fa-minus-square"});
-//		var iconPlus = $("<i>", {class: "fa fa-plus-square"});
-//		$sideMens.each(function(i,j){
-//			$menu = $(j).prev();
-//			if(j.id == "group_"+_agency){
-//				$(j).addClass("show");
-//				$menu.find("a:eq(1)").append(iconMinus);
-//			}
-//			else
-//				$menu.find("a:eq(1)").append(iconPlus);
-//
-//			$menu.click(function(){
-//				$(this).find("a:eq(1)").children().toggleClass("fa-minus-square fa-plus-square");
-//			})
-//		})
 	}
-	
+}
+
+function topMessage($msgDiv, j){
+	let $anch = $("<a>",{'class':'dropdown-item d-flex align-items-center', 'href':'javascript:void(0)' } )
+	.append( $("<div>", {'class':'mr-3'}).append($("<div>",{'class':'icon-circle bg-primary'} )
+			.append($("<i>",{'class':'fas fa-file-alt text-white' })  )  )  )
+	.append( $("<div>").append(
+			$("<div>",{'class':'small text-gray-600'} ).text('time')  ).append(
+			$("<span>", {'class':'font-weight-bold'} ).text(j.comment)
+			) );
+
+	$msgDiv.append($anch);
 }

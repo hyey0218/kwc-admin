@@ -3,6 +3,7 @@ package konantech.ai.aikwc.service;
 import java.util.List;
 import java.util.Map;
 
+import konantech.ai.aikwc.entity.Agency;
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.Site;
@@ -31,7 +32,7 @@ public interface CollectorService {
 	
 	public void updateStatus(int pk, String status);
 	
-	public String getAgencyNameForCollector(String pk);
+	public Agency getAgencyNameForCollector(String pk);
 	
 	public List<Site> getSiteInGroup(String group);
 	public Site saveSite(Site site);

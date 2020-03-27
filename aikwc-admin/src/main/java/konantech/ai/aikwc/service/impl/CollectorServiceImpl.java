@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.provider.HibernateUtils;
 import org.springframework.stereotype.Service;
 
-import konantech.ai.aikwc.common.config.CheckStatusHandler;
+import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.entity.Agency;
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.Group;
@@ -40,7 +40,7 @@ public class CollectorServiceImpl implements CollectorService {
 	private AgencyRepository agencyRepository;
 	
 	@Autowired
-	CheckStatusHandler statusHandler;
+	StatusWebSocketHandler statusHandler;
 	
 	public Group saveGroup(Group group) {
 		return groupRepository.save(group);
@@ -109,8 +109,8 @@ public class CollectorServiceImpl implements CollectorService {
 		}
 	}
 	
-	public String getAgencyNameForCollector(String pk) {
-		return agencyRepository.findOneByPk(pk).getName();
+	public Agency getAgencyNameForCollector(String pk) {
+		return agencyRepository.findOneByPk(pk);
 	}
 	
 	public List<Site> getSiteInGroup(String group){
