@@ -11,12 +11,16 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
 	@Autowired
-	CheckStatusHandler statusHandler;
+	StatusWebSocketHandler statusHandler;
+	
+	@Autowired
+	MsgWebSocketHandler msgHandler;
 	
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 		//endPoint 등록 , CORS 처리, sockJS 등록
-		registry.addHandler(statusHandler, "/ws/getCollectorStatus").setAllowedOrigins("*").withSockJS();
+		registry.addHandler(statusHandler, "/ws/getStatus").setAllowedOrigins("*").withSockJS();
+		registry.addHandler(msgHandler, "/ws/getLogMsg").setAllowedOrigins("*").withSockJS();
 	}
 
 }

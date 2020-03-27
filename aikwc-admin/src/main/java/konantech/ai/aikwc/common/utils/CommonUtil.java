@@ -67,6 +67,12 @@ public class CommonUtil {
         return timeToMins;
     }
 	
+	public static String getCurrentTimeStr(String pattern) {
+		pattern = StringUtils.defaultIfEmpty(pattern, "yyyy-MM-dd HH:mm:ss");
+		String timeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern).withLocale(Locale.KOREA));
+		return timeStr;
+	}
+	
 	public static String getUriParamValue(String uri, String paramName) {
 		UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(uri);
 		MultiValueMap<String, String> map = uriComponentsBuilder.build().getQueryParams();

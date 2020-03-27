@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html 
+	xmlns:th="http://www.thymeleaf.org" 
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout/layout-sml">
+
+      <!-- Main Content -->
+      <div id="content" layout:fragment="content" >
+		<th:block th:insert="comm/top :: top"> </th:block>
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <div class="row">
+	          <div class="col">
+	          	<h1 class="h3 mb-2 text-gray-800">작업 로그</h1>
+<!-- 	          	<p class="mb-4">작업 로그 </p> -->
+	          </div>
+	          <div class="align-items-center">
+	          <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i>다운로드</a>
+	          </div>
+          </div>
+          
+          <div class="row">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="collectorTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th scope="col-1" >NO</th>
+				      <th scope="col-1" >Type</th>
+				      <th scope="col" >Comment</th>
+				      <th scope="col" >Date</th>
+				      <th scope="col" >-</th>
+				      <th scope="col">-</th>
+				      <th scope="col">-</th>
+                    </tr>
+                  </thead>
+                  <tbody id="logList">
+                    <tr>
+					<th>1</th>
+					<td>Otto</td>
+					<td>@mdo</td>
+					<td>@mdo</td>
+					<td>sdfsdfdsfdsfds</td>
+					<td>@mdo</td>
+					<td>@mdo</td>
+				</tr>
+                </tbody>
+                </table>
+                </div>
+                </div>
+          </div>
+          
+
+		</div>
+      </div>
+      <!-- End of Main Content -->
+
+
+</html>

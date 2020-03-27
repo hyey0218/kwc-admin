@@ -62,15 +62,20 @@
       </div>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" th:href="@{/simulator/list(agencyNo=${agencyNo},menuNo=1)}">
+        <a class="nav-link collapsed" th:href="@{/simulator/list(agencyNo=${agencyNo})}">
           <i class="fas fa-fw fa-cog"></i>
           <span>실행</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link collapsed">
+        <a class="nav-link collapsed"  th:href="@{/simulator/schedule(agencyNo=${agencyNo})}">
           <i class="fas fa-fw fa-cog"></i>
           <span>스케줄</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link collapsed"  th:href="@{/simulator/log(agencyNo=${agencyNo})}">
+          <i class="fas fa-fw fa-cog"></i>
+          <span>로그</span></a>
       </li>
 
 

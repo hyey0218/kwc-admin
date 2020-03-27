@@ -2,12 +2,17 @@ package konantech.ai.aikwc.common.config;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -16,22 +21,24 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import konantech.ai.aikwc.common.utils.CommonUtil;
-import konantech.ai.aikwc.entity.Collector;
-import konantech.ai.aikwc.repository.CollectorRepository;
+import konantech.ai.aikwc.entity.KLog;
+import konantech.ai.aikwc.repository.KLogRepository;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Component
-public class StatusWebSocketHandler extends TextWebSocketHandler {
+public class MsgWebSocketHandler extends TextWebSocketHandler {
 	
 	private Set<WebSocketSession> sessionList = new HashSet<WebSocketSession>();
 	
 	@Autowired
-	private CollectorRepository collectorRepository;
+	private KLogRepository logRepository;
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		sessionList.add(session);
+//		String agency = CommonUtil.getUriParamValue(session.getUri().toString(),"agency");
+//		sendLogMassage(agency);
 	}
 
 	@Override
@@ -50,18 +57,21 @@ public class StatusWebSocketHandler extends TextWebSocketHandler {
 	}
 	
 	
-	public void sendCollectorStatus() throws IOException {
+	public void sendLogMassage(String agency) throws IOException {
 		Iterator<WebSocketSession> iterator = sessionList.iterator();
 		
 		
 		while(iterator.hasNext()) {
 			WebSocketSession session = iterator.next();
-			List<Collector> collectors = collectorRepository.findByUseyn("Y");
-//			List<Collector> collectors = collectorRepository.findStatus();
+			
+			Pageable sort = PageRequest.of(0, 3, Sort.by("create_date").descending());
+			
+			List<KLog> logs = logRepository.findByAgencyNotRead(agency, sort);
+
 			
 			JSONObject obj = new JSONObject();
-			JSONArray arr = (JSONArray) CommonUtil.parseToJson(collectors);
-			obj.put("collectors", arr);
+			JSONArray arr = (JSONArray) CommonUtil.parseToJson(logs);
+			obj.put("logs", arr);
 			
 			TextMessage message = new TextMessage(obj.toString());
 			session.sendMessage(message);
@@ -70,22 +80,4 @@ public class StatusWebSocketHandler extends TextWebSocketHandler {
 		
 	}
 	
-	public void sendTaskCnt(int cnt) {
-		
-		Iterator<WebSocketSession> iterator = sessionList.iterator();
-		while(iterator.hasNext()) {
-			WebSocketSession session = iterator.next();
-			JSONObject obj = new JSONObject();
-			obj.put("taskCnt", cnt);
-			TextMessage message = new TextMessage(obj.toString());
-			try {
-				session.sendMessage(message);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-	
-
 }

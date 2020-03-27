@@ -4,7 +4,7 @@ $(document).ready(function(){
 	simulatorList();
 	
 	//Web Sockect
-	var sock = new SockJS("/ws/getCollectorStatus");
+	var sock = new SockJS("/ws/getStatus");
 	
 	sock.onopen = function(){
 		console.log("open")
@@ -12,7 +12,6 @@ $(document).ready(function(){
 	
 	sock.onmessage = function(message) { 
 		let jObj = JSON.parse(message.data);
-		console.log(jObj);
 		if(jObj.taskCnt != undefined){
 			taskProgress(Number(jObj.taskCnt));
 		}

@@ -20,7 +20,7 @@ import lombok.Setter;
 @Entity
 @Data
 @Table(name = "kwc_log")
-public class Klog {
+public class KLog {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,23 +28,46 @@ public class Klog {
 	@Column
 	String type;
 	@Column
+	String agency;
+	@Column
+	String logCont;
+	@Column
 	String comment;
 	@Column
-	LocalDateTime date;
+	LocalDateTime createDate;
+	@Column
+	String readyn;
+	@Column
+	String delyn;
+	@Column
+	String param1;
+	@Column
+	String param2;
+	@Column
+	String param3;
 	
-	public Klog() {}
+	public KLog() {}
 	@Builder
-	public Klog(String type, String comment, LocalDateTime date) {
+	public KLog(String type, String agency, String logCont, String comment, LocalDateTime createDate, String readyn, String delyn,
+			String param1, String param2, String param3) {
 		super();
 		this.type = type;
+		this.agency = agency;
+		this.logCont = logCont;
 		this.comment = comment;
-		this.date = date;
+		this.createDate = createDate;
+		this.readyn = readyn;
+		this.delyn = delyn;
+		this.param1 = param1;
+		this.param2 = param2;
+		this.param3 = param3;
 	}
-	
-	
+
 	@PrePersist
-	public void createDate() {
-		this.date = LocalDateTime.now();
+	public void create() {
+		this.createDate = LocalDateTime.now();
+		this.readyn = "N";
+		this.delyn = "N";
 	}
 
 }

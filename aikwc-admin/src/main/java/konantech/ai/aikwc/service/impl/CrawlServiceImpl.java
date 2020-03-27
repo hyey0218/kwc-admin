@@ -21,14 +21,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
-import konantech.ai.aikwc.common.config.AsyncConfig;
-import konantech.ai.aikwc.common.config.CheckStatusHandler;
+import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.common.utils.CommonUtil;
 import konantech.ai.aikwc.common.utils.KWCSelenium;
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.Crawl;
 import konantech.ai.aikwc.repository.CrawlRepository;
 import konantech.ai.aikwc.service.CollectorService;
+import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.CrawlService;
 
 @Service("CrawlService")
@@ -41,16 +41,21 @@ public class CrawlServiceImpl implements CrawlService {
 	CollectorService collectorService;
 	
 	@Autowired
-	CrawlRepository crawlRepository;
+	CommonService commonService;
 	
 	@Autowired
-	AsyncConfig asyncConfig;
+	CrawlRepository crawlRepository;
 	
 	@Async("kwcExecutor")
 	public CompletableFuture webCrawl(Collector collector ) throws Exception {
+		StringBuffer logBuffer = new StringBuffer();
+		String threadName = Thread.currentThread().getName();
+		String colInfo = collector.getToSite().getName() + "/" + collector.getName();
+		logBuffer.append("["+CommonUtil.getCurrentTimeStr("")+"] START TASK " + threadName ).append(" : " + colInfo +"\n");
 		KWCSelenium kwc = new KWCSelenium(driverPath) {
 			@Override
 			public int crawlWeb(Object collector ,JpaRepository repository) {
+				
 				try {
 					Collector c ;
 					if(collector instanceof Collector)
@@ -69,6 +74,7 @@ public class CrawlServiceImpl implements CrawlService {
 					this.content = By.xpath(c.getContent());
 					this.writer = By.xpath(c.getWriter());
 					this.writeDate = By.xpath(c.getWriteDate());
+					this.log.setAgency(c.getToSite().getGroup().getAgency());
 					
 					int startPage = Integer.parseInt(c.getStartPage());
 					int endPage = Integer.parseInt(c.getEndPage());
@@ -101,9 +107,9 @@ public class CrawlServiceImpl implements CrawlService {
 						Crawl obj = new Crawl();
 						try {
 							//사이트내용
-							obj.setChannel(c.getToSite().getGroup().getName());
-							obj.setSiteName(c.getToSite().getGroup().getAgencyName()+"/"+c.getToSite().getName());
-							obj.setBoardName(c.getName());
+							obj.setChannel(c.getChannel());
+							obj.setSiteName(c.getToSite().getGroup().getAgencyName());
+							obj.setBoardName(c.getToSite().getName()+"/"+c.getName());
 							obj.setUrl(webDriver.getCurrentUrl());
 							obj.setCrawledTime(LocalDateTime.now());
 							if(idIsXpath)
@@ -140,15 +146,21 @@ public class CrawlServiceImpl implements CrawlService {
 		
 		//2. crawling 페이지별로  insert하는 크롤링
 		int result = kwc.crawlWeb(collector, crawlRepository);
-		
+		String endTime = "["+CommonUtil.getCurrentTimeStr("")+"] ";
 		//3. DB status update Success+Wait
-		if(result == 0)
+		if(result == 0) {
 			collectorService.updateStatus(collector.getPk(), "SW");
+			logBuffer.append(endTime+ Thread.currentThread().getName() +" : " +  colInfo +" [SUCCESS] \n");
+			kwc.log.setComment(colInfo + " 수집 완료 [SUCCESS]");
+		}
 		else {
 			collectorService.updateStatus(collector.getPk(), "FW");
-			throw new Exception("crawlWeb Exception...");
+			logBuffer.append(endTime+ Thread.currentThread().getName() +" : " +  colInfo +" [FAIL] \n");
+			kwc.log.setComment(colInfo + " 수집 완료 [FAIL]");
 		}
-		
+		logBuffer.append("["+CommonUtil.getCurrentTimeStr("")+"] END TASK " + threadName ).append(" : " + colInfo +"\n");
+		kwc.log.setLogCont(logBuffer.toString());
+		kwc.insertLog(commonService);
 		return CompletableFuture.completedFuture(result);
 	}
 }
