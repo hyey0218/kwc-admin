@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Future;
+import java.util.function.Supplier;
 
 import javax.annotation.Resource;
 
@@ -18,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import konantech.ai.aikwc.common.config.AsyncConfig;
-import konantech.ai.aikwc.common.config.CheckStatusHandler;
+import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.entity.Agency;
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.service.CollectorService;
@@ -38,7 +42,7 @@ public class SimulatorController {
 	@Autowired
 	AsyncConfig asyncConfig;
 	@Autowired
-	CheckStatusHandler statusHandler;
+	StatusWebSocketHandler statusHandler;
 	
 	@RequestMapping("/list")
 	public String list(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
@@ -58,7 +62,33 @@ public class SimulatorController {
 	public String runSchedule(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
 			,@RequestParam(name = "menuNo", required = false, defaultValue = "1") String menuNo
 			,Model model) {
+		
+		Map map = commonService.commInfo(agencyNo);
+		Agency selAgency = (Agency) map.get("selAgency");
+		model.addAttribute("selAgency", selAgency);
+		model.addAttribute("agencyList", map.get("agencyList"));
+		model.addAttribute("groupList", map.get("groupList"));
+		model.addAttribute("agencyNo", selAgency.getPk());
+		model.addAttribute("menuNo", "2");
+		
+		
 		return "sml/runSchedule";
+	}
+	@RequestMapping("/log")
+	public String viewLog(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
+			,@RequestParam(name = "menuNo", required = false, defaultValue = "1") String menuNo
+			,Model model) {
+		
+		Map map = commonService.commInfo(agencyNo);
+		Agency selAgency = (Agency) map.get("selAgency");
+		model.addAttribute("selAgency", selAgency);
+		model.addAttribute("agencyList", map.get("agencyList"));
+		model.addAttribute("groupList", map.get("groupList"));
+		model.addAttribute("agencyNo", selAgency.getPk());
+		model.addAttribute("menuNo", "3");
+		
+		
+		return "sml/viewLog";
 	}
 	
 	
@@ -83,28 +113,29 @@ public class SimulatorController {
 	
 	@RequestMapping("/crawl")
 	@ResponseBody
-	public void getCrawl(@RequestBody Collector collector) {
+	public void getCrawl(@RequestBody Collector collector) throws Exception {
 		
 		Collector selectedCollector = collectorService.getCollectorInfo(collector.getPk());
 		selectedCollector.setStartPage(collector.getStartPage());
 		selectedCollector.setEndPage(collector.getEndPage());
 		
-		String agencyName = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
+		Agency Agency = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
+		String agencyName = Agency.getName();
 		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
+		selectedCollector.setChannel("기관");
 		
-		//1. update Running status
+		//1. update Running status / send websocket message
 		collectorService.updateStatus(collector.getPk(), "R");
-		try {
-			crawlService.webCrawl(selectedCollector);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				statusHandler.sendTaskCnt();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		
+		CompletableFuture cf = crawlService.webCrawl(selectedCollector);
+		statusHandler.sendTaskCnt(asyncConfig.getTaskCount());
+		
+		CompletableFuture<Void> after = cf.handle((res,ex) -> {
+			statusHandler.sendTaskCnt(asyncConfig.getAfterTaskCount());
+			return null;
+		});
+		
+		
 	}
 }
 

@@ -34,9 +34,9 @@ public class AspectConfig {
 	public void crawlBefore() throws IOException{
 		statusHandler.sendTaskCnt();
 	}
-	
-//	@After("execution(* konantech.ai.aikwc.service.CrawlService.webCrawl(..)) ")
-//	public void crawlAfter() throws IOException{
-//		statusHandler.sendTaskCnt();
-//	}
+
+	@After("execution(* konantech.ai.aikwc.service.CrawlService.webCrawl(..)) ")
+	public void crawlAfter() throws IOException{
+		statusHandler.sendTaskCnt();
+	}
 }
