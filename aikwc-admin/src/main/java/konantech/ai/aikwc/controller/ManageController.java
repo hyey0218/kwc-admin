@@ -142,5 +142,4 @@ public class ManageController {
 		
 		return "redirect:/manage";
 	}
-	
 }

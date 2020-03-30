@@ -55,14 +55,14 @@ public class CrawlServiceImpl implements CrawlService {
 		KWCSelenium kwc = new KWCSelenium(driverPath) {
 			@Override
 			public int crawlWeb(Object collector ,JpaRepository repository) {
-				
+				Collector c = null;
+				CrawlRepository repo = null;
+				List<Crawl> list = new ArrayList<Crawl>();
 				try {
-					Collector c ;
 					if(collector instanceof Collector)
 						c = (Collector) collector;
 					else
 						throw new Exception("Collector 형변환 오류");
-					CrawlRepository repo;
 					if(repository instanceof CrawlRepository)
 						repo = (CrawlRepository) repository;
 					else
@@ -78,6 +78,7 @@ public class CrawlServiceImpl implements CrawlService {
 					
 					int startPage = Integer.parseInt(c.getStartPage());
 					int endPage = Integer.parseInt(c.getEndPage());
+					c.setEndPage("");
 					openBrowser();
 					
 					crawlPerPage(startPage, endPage, c, repo);
@@ -90,56 +91,58 @@ public class CrawlServiceImpl implements CrawlService {
 				return 0;
 			}
 			
-			public void crawlPerPage(int startPage, int endPage,Collector c, CrawlRepository repo ) throws Exception {
+			public void crawlPerPage(int startPage, int endPage,Collector c, CrawlRepository repo) throws Exception {
 				boolean isTimePattern = StringUtils.containsAny(c.getWdatePattern(), "Hms");
 				boolean idIsXpath = StringUtils.startsWith(c.getContId(), "//");
-				for(int page =startPage ; page <= endPage; page++) {
-					List<Crawl> dataList = new ArrayList<Crawl>();
-					webDriver.get(startUrl+page);
+				try {
+					for(int page =startPage ; page <= endPage; page++) {
+						webDriver.get(startUrl+page);
+						int len = webDriver.findElements(titleLink).size();
+						List<Crawl> dataList = new ArrayList<Crawl>();
+	//					String listWin = webDriver.getWindowHandle();
+						for(int i=0;i<len;i++) {// page back() 하면 pageSession이 달라서 titleLink List를 새롭게 구해야함 
+							List<WebElement> titleLinks = webDriver.findElements(titleLink);
+							titleLinks.get(i).sendKeys(Keys.ENTER);
+							Thread.sleep(3000);
+						
+							Crawl obj = new Crawl();
+							
+								//사이트내용
+								obj.setChannel(c.getChannel());
+								obj.setSiteName(c.getToSite().getGroup().getAgencyName());
+								obj.setBoardName(c.getToSite().getName()+"/"+c.getName());
+								obj.setUrl(webDriver.getCurrentUrl());
+								obj.setCrawledTime(LocalDateTime.now());
+								if(idIsXpath)
+									obj.setUniqkey(webDriver.findElement(By.xpath(c.getContId())).getAttribute("value"));
+								else
+									obj.setUniqkey(CommonUtil.getUriParamValue(webDriver.getCurrentUrl(), c.getContId()));
+								//본문내용
+								obj.setTitle(webDriver.findElement(title).getText());
+								obj.setDoc(webDriver.findElement(content).getText());
+								obj.setWriteId(webDriver.findElement(writer).getText());
+								try {
+									obj.setWriteTime(CommonUtil.stringToLocalDateTime(webDriver.findElement(writeDate).getText(), c.getWdatePattern(),isTimePattern) );
+								}catch(java.time.format.DateTimeParseException de){
+	//								System.out.println("****************** DateTimeParseException ********************");
+									obj.setWtimeStr(webDriver.findElement(writeDate).getText());
+								}
+								dataList.add(obj);
+								webDriver.navigate().back();
+								Thread.sleep(3000);
+						}
+						repo.saveAll(dataList);
+						c.setEndPage(String.valueOf(page));
+					}
 					
-					int len = webDriver.findElements(titleLink).size();
-//					String listWin = webDriver.getWindowHandle();
-					for(int i=0;i<len;i++) {// page back() 하면 pageSession이 달라서 titleLink List를 새롭게 구해야함 
-						List<WebElement> titleLinks = webDriver.findElements(titleLink);
-						titleLinks.get(i).sendKeys(Keys.ENTER);
-						Thread.sleep(3000);
-					
-						Crawl obj = new Crawl();
-						try {
-							//사이트내용
-							obj.setChannel(c.getChannel());
-							obj.setSiteName(c.getToSite().getGroup().getAgencyName());
-							obj.setBoardName(c.getToSite().getName()+"/"+c.getName());
-							obj.setUrl(webDriver.getCurrentUrl());
-							obj.setCrawledTime(LocalDateTime.now());
-							if(idIsXpath)
-								obj.setUniqkey(webDriver.findElement(By.xpath(c.getContId())).getAttribute("value"));
-							else
-								obj.setUniqkey(CommonUtil.getUriParamValue(webDriver.getCurrentUrl(), c.getContId()));
-							//본문내용
-							obj.setTitle(webDriver.findElement(title).getText());
-							obj.setDoc(webDriver.findElement(content).getText());
-							obj.setWriteId(webDriver.findElement(writer).getText());
-							try {
-								obj.setWriteTime(CommonUtil.stringToLocalDateTime(webDriver.findElement(writeDate).getText(), c.getWdatePattern(),isTimePattern) );
-							}catch(java.time.format.DateTimeParseException de){
-//								System.out.println("****************** DateTimeParseException ********************");
-								obj.setWtimeStr(webDriver.findElement(writeDate).getText());
-							}
-							dataList.add(obj);
-							webDriver.navigate().back();
-							Thread.sleep(5000);
-						}catch(org.openqa.selenium.NoSuchElementException ex) { //
+//				}catch(org.openqa.selenium.NoSuchElementException ex) { //
 //									webDriver.close();
 //									webDriver.switchTo().window(listWin);
 //									continue;
-							throw ex;
-						}catch(Exception e) {
-							throw e; // 이외 모든 예외에는 크롤링 중단
-						}
-					}
-					//data insert
-					repo.saveAll(dataList);
+//							throw ex;
+				}catch(Exception e) {
+					throw e; // 이외 모든 예외에는 크롤링 중단
+				}finally {
 				}
 			}
 		};
@@ -147,18 +150,19 @@ public class CrawlServiceImpl implements CrawlService {
 		//2. crawling 페이지별로  insert하는 크롤링
 		int result = kwc.crawlWeb(collector, crawlRepository);
 		String endTime = "["+CommonUtil.getCurrentTimeStr("")+"] ";
+		String sePage = collector.getStartPage() + " ~ " + collector.getEndPage();
 		//3. DB status update Success+Wait
 		if(result == 0) {
 			collectorService.updateStatus(collector.getPk(), "SW");
-			logBuffer.append(endTime+ Thread.currentThread().getName() +" : " +  colInfo +" [SUCCESS] \n");
+			logBuffer.append(endTime+ Thread.currentThread().getName() +" : " +  colInfo +" [SUCCESS] : "+sePage+" page \n");
 			kwc.log.setComment(colInfo + " 수집 완료 [SUCCESS]");
 		}
 		else {
 			collectorService.updateStatus(collector.getPk(), "FW");
-			logBuffer.append(endTime+ Thread.currentThread().getName() +" : " +  colInfo +" [FAIL] \n");
-			kwc.log.setComment(colInfo + " 수집 완료 [FAIL]");
+			logBuffer.append(endTime+ Thread.currentThread().getName() +" : " +  colInfo +" [FAIL] : "+sePage+" page \n");
+			kwc.log.setComment(colInfo + " 수집 완료 : [FAIL]");
 		}
-		logBuffer.append("["+CommonUtil.getCurrentTimeStr("")+"] END TASK " + threadName ).append(" : " + colInfo +"\n");
+		logBuffer.append("["+CommonUtil.getCurrentTimeStr("")+"] END TASK " + threadName ).append(" : " + colInfo);
 		kwc.log.setLogCont(logBuffer.toString());
 		kwc.insertLog(commonService);
 		return CompletableFuture.completedFuture(result);

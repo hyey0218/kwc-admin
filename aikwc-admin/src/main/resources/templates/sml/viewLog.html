@@ -30,22 +30,22 @@
                       <th scope="col-1" >NO</th>
 				      <th scope="col-1" >Type</th>
 				      <th scope="col" >Comment</th>
-				      <th scope="col" >Date</th>
+				      <th scope="col" >Written Date</th>
 				      <th scope="col" >-</th>
 				      <th scope="col">-</th>
 				      <th scope="col">-</th>
                     </tr>
                   </thead>
                   <tbody id="logList">
-                    <tr>
-					<th>1</th>
-					<td>Otto</td>
-					<td>@mdo</td>
-					<td>@mdo</td>
-					<td>sdfsdfdsfdsfds</td>
-					<td>@mdo</td>
-					<td>@mdo</td>
-				</tr>
+                    <tr th:each="obj:${logList}">
+						<th th:text="${objStat.count}">1</th>
+						<td th:text="${obj.type}">Otto</td>
+						<td><pre th:text="${obj.logCont}"></pre></td>
+						<td th:text="${#temporals.format(obj.createDate,'yyyy-MM-dd HH:mm')}">@mdo</td>
+						<td th:text="${obj.param1}">sdfsdfdsfdsfds</td>
+						<td th:text="${obj.param2}">@mdo</td>
+						<td th:text="${obj.param3}">@mdo</td>
+					</tr>
                 </tbody>
                 </table>
                 </div>

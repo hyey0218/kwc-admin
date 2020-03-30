@@ -1,6 +1,5 @@
 var _dataTab;
 $(document).ready(function(){
-	$("#accordionSidebar > li:eq("+(2+_menuNo)+")").addClass("active");
 	simulatorList();
 	
 	//Web Sockect
@@ -35,11 +34,9 @@ $(document).ready(function(){
 })
 
 function simulatorList(){
-	let site = $("#simualtorForm").find('[id=selectSite]').val();
-	
 	let requestUrl = "/simulator/collectorList";
 	let jObj = {};
-	jObj.site = site;
+	jObj.agencyNo = _agencyNo;
 	let res = getJSONAjaxMethod(requestUrl, "POST", jObj);
 	let retJson = res.result;
 	if(retJson){
@@ -95,8 +92,9 @@ function execKwc(pk){
 			return false;
 		}
 	}else{
-		alert("page 범위를 입력 하세요");
-		return false;
+//		alert("page 범위를 입력 하세요");
+//		return false;
+		re = new Array("","1","1");
 	}
 	// page input validation end //
 	let strData = JSON.stringify({"pk":pk, "startPage": re[1], "endPage": re[2]});
@@ -124,7 +122,7 @@ function runningSatus(stat,pk){
 				$("<span>", {'class':'spinner-border spinner-border-sm','role':'status','aria-hidden':'true'}))
 	}
 	else{
-		$button = $("<button>",{'class':"btn btn-danger", 'type':"button", 'id':"addon"+pk, 'onclick':'execKwc('+pk+')' }).text("start")
+		$button = $("<button>",{'class':"btn btn-danger", 'type':"button", 'id':"addon"+pk, 'onclick':'execKwc('+pk+')' }).append($("<i>" ,{'class': 'fas fa-play'}))
 	}
 	return $button;	
 }

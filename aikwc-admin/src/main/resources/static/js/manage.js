@@ -6,45 +6,6 @@ $(document).ready(function(){
 	
 })
 
-
-
-function groupSelect(obj){
-	if($(obj).val() == "")
-		return false;
-	
-	let requestUrl = "/manage/siteInGroup";
-	let jObj = {}
-	jObj.grp = $(obj).val();
-	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj).result;
-	$("#selectSite > option:gt(0)").remove();
-	if(retJson){
-		let $elementSelect = $("#selectSite");
-		$(retJson).each(function(i,j){
-			$elementSelect.append($("<option>", {value: j.pk} ).text(j.name) );
-		})
-	}
-}
-
-
-function siteSelect(obj){
-	if($(obj).val() == "")
-		return false;
-	
-	let requestUrl = "/manage/collectorInSite";
-	let jObj = {};
-	jObj.site = $(obj).val();
-	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj).result;
-	$("#selectCollector > option:gt(0)").remove();
-	if(retJson){
-		let $elementSelect = $("#selectCollector");
-		$(retJson).each(function(i,j){
-			console.log(j)
-			$elementSelect.append($("<option>", {value: j.pk} ).text(j.name) );
-		})
-	}
-}
-
-
 function collectorSelect(obj){
 	if($(obj).val() == "")
 		return false;

@@ -55,4 +55,8 @@ public class Agency {
 	@JoinColumn(name = "agency")
 	List<Group> group = new ArrayList<>();
 	
+	
+	public String getStrPk() {
+		return String.valueOf(pk);
+	}
 }

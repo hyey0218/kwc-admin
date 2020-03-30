@@ -45,12 +45,19 @@ public class CommonServiceImpl implements CommonService {
 	}
 	
 	public void saveLog(KLog log) {
-//		logRepository.saveAndFlush(log);
+		logRepository.saveAndFlush(log);
 		
 		try {
-			msgHandler.sendLogMassage(log.getAgency());
+			msgHandler.sendLogMassage();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	public void readAllLog() {
+		logRepository.updateRead();
+	}
+	
+	public List<KLog> getAgencyLogList(String agency){
+		return logRepository.findByAgencyOrderByCreateDateDesc(agency);
 	}
 }

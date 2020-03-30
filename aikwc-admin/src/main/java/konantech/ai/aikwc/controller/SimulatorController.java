@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,9 +26,12 @@ import konantech.ai.aikwc.common.config.AsyncConfig;
 import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.entity.Agency;
 import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.KLog;
+import konantech.ai.aikwc.entity.KTask;
 import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.CrawlService;
+import konantech.ai.aikwc.service.ScheduleService;
 
 @Controller
 @RequestMapping("simulator")
@@ -43,6 +47,9 @@ public class SimulatorController {
 	AsyncConfig asyncConfig;
 	@Autowired
 	StatusWebSocketHandler statusHandler;
+	
+	@Autowired
+	ScheduleService scheduleService;
 	
 	@RequestMapping("/list")
 	public String list(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
@@ -62,7 +69,6 @@ public class SimulatorController {
 	public String runSchedule(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
 			,@RequestParam(name = "menuNo", required = false, defaultValue = "1") String menuNo
 			,Model model) {
-		
 		Map map = commonService.commInfo(agencyNo);
 		Agency selAgency = (Agency) map.get("selAgency");
 		model.addAttribute("selAgency", selAgency);
@@ -70,7 +76,6 @@ public class SimulatorController {
 		model.addAttribute("groupList", map.get("groupList"));
 		model.addAttribute("agencyNo", selAgency.getPk());
 		model.addAttribute("menuNo", "2");
-		
 		
 		return "sml/runSchedule";
 	}
@@ -87,7 +92,9 @@ public class SimulatorController {
 		model.addAttribute("agencyNo", selAgency.getPk());
 		model.addAttribute("menuNo", "3");
 		
-		
+		List<KLog> logList = new ArrayList<KLog>();
+		logList = commonService.getAgencyLogList(selAgency.getStrPk());
+		model.addAttribute("logList", logList);
 		return "sml/viewLog";
 	}
 	
@@ -97,10 +104,10 @@ public class SimulatorController {
 	@ResponseBody
 	public Map<String,Object> collectorList(@RequestBody Map<String,String> params) {
 		
-		String site = params.get("site");
+		String agency = params.get("agencyNo");
 		List<Collector> result = new ArrayList<Collector>();
-		if(site != null && !site.equals("")) {
-			result = collectorService.getCollectorListInSiteInUse(site);
+		if(agency != null && !agency.equals("")) {
+			result = collectorService.getCollectorListInAgency(Integer.parseInt(agency));
 		}else
 			result = collectorService.getCollectorList();
 			
@@ -135,7 +142,23 @@ public class SimulatorController {
 			return null;
 		});
 		
+	}
+	
+	@RequestMapping(value="/schedule/save", method = RequestMethod.POST)
+	public String saveSchdule(@ModelAttribute KTask task) throws Exception {
+//		KTask task = new KTask();
+		task.setTaskNo("crawlTask");
+		scheduleService.registerSchedule(task,"*/10 * * * * *");
 		
+		return "redirect:/simulator/schedule";
+	}
+	
+	@RequestMapping(value="/schedule/delete", method = RequestMethod.POST)
+	@ResponseBody
+	public void deleteSchdule() throws Exception {
+		KTask task = new KTask();
+		task.setTaskNo("crawlTask");
+		scheduleService.stopSchedule(task);
 	}
 }
 
