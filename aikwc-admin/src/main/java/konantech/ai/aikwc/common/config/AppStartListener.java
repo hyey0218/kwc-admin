@@ -1,0 +1,45 @@
+package konantech.ai.aikwc.common.config;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
+
+import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.KTask;
+import konantech.ai.aikwc.service.CollectorService;
+import konantech.ai.aikwc.service.ScheduleService;
+import konantech.ai.aikwc.service.TaskService;
+
+@Component
+public class AppStartListener implements ApplicationListener<ApplicationStartedEvent> {
+
+	@Autowired
+	TaskService taskService;
+	@Autowired
+	ScheduleService scheduleService;
+	
+	@Autowired
+	CollectorService collectorService;
+	
+	@Override
+	public void onApplicationEvent(ApplicationStartedEvent event) {
+		System.out.println("###################################");
+		System.out.println("###########Start Event#############");
+		System.out.println("###################################");
+		taskCheck();
+	}
+	
+	public void taskCheck() {
+		List<KTask> taskList = taskService.getAllTaskByUsable();
+		if(taskList.size() > 0) {
+			taskList.forEach((task)->{
+				Collector collector = collectorService.getCollectorInfo(Integer.parseInt(task.getCollector()));
+				scheduleService.registerSchedule(task, collector);
+			});
+		}
+	}
+
+}

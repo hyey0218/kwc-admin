@@ -16,7 +16,7 @@ public interface TaskService {
 	
 	public void saveTask(KTask task);
 	
-	public List<KTask> getAllTask();
+	public List<KTask> getAllTaskByUsable();
 	
 	public List<Map<String, String>> getAllTaskWithCollectorName();
 	

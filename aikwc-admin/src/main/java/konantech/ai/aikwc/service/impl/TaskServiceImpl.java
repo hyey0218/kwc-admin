@@ -20,7 +20,6 @@ public class TaskServiceImpl implements TaskService {
 	public KTask getTaskByPk(String pk) {
 		return taskRepository.findById(Integer.parseInt(pk)).get();
 	}
-	
 	public List<KTask> getTaskByCollector(String collector) {
 		return taskRepository.findAllByCollector(collector);
 	}
@@ -41,7 +40,7 @@ public class TaskServiceImpl implements TaskService {
 		taskRepository.saveAndFlush(task);
 	}
 	
-	public List<KTask> getAllTask(){
+	public List<KTask> getAllTaskByUsable(){
 		return taskRepository.findByUseyn("Y");
 	}
 	
