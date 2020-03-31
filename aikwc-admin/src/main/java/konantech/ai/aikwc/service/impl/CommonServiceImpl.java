@@ -11,8 +11,10 @@ import org.springframework.ui.Model;
 
 import konantech.ai.aikwc.common.config.MsgWebSocketHandler;
 import konantech.ai.aikwc.entity.Agency;
+import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.KLog;
 import konantech.ai.aikwc.repository.AgencyRepository;
+import konantech.ai.aikwc.repository.GroupRepository;
 import konantech.ai.aikwc.repository.KLogRepository;
 import konantech.ai.aikwc.service.CommonService;
 
@@ -24,6 +26,9 @@ public class CommonServiceImpl implements CommonService {
 	
 	@Autowired
 	KLogRepository logRepository;
+	
+	@Autowired
+	GroupRepository groupRepository;
 	
 	@Autowired
 	MsgWebSocketHandler msgHandler;
@@ -59,5 +64,16 @@ public class CommonServiceImpl implements CommonService {
 	
 	public List<KLog> getAgencyLogList(String agency){
 		return logRepository.findByAgencyOrderByCreateDateDesc(agency);
+	}
+	public List<KLog> getAllLog(){
+		return logRepository.findAllByOrderByCreateDateDesc();
+	}
+	
+	public List<Agency> getAgencyAll(){
+		return agencyRepository.findAll();
+	}
+	
+	public List<Group> getGroupInAgency(String agency){
+		return groupRepository.findAllByAgency(agency);
 	}
 }

@@ -87,10 +87,18 @@
         <form name="schduleRegForm" id="schduleRegForm" th:action="@{/simulator/schedule/save}" method="POST">
         	<div class="form-row form-group">
 				<div class="col">
-					<label>수집 그룹명(코드)</label>
-					<select class="form-control" name="grp" onchange="groupSelect(this)">
+					<label>기관 선택</label>
+					<select class="form-control" name="agency" onchange="agencySelect(this)">
 						<option value="">선택</option>
-					  <option th:each="gObj:${groupList}" th:value="${gObj.pk}" th:text="${gObj.name}+'('+${gObj.code}+')'"></option>
+					  <option th:each="aObj:${agencyList}" th:value="${aObj.pk}" th:text="${aObj.name}+'('+${aObj.code}+')'"></option>
+					</select>
+				</div>
+			</div>
+        	<div class="form-row form-group">
+				<div class="col">
+					<label>수집 그룹명(코드)</label>
+					<select class="form-control" id="selectGroup" name="grp" onchange="groupSelect(this)">
+						<option value="">선택</option>
 					</select>
 				</div>
 				<div class="col">
@@ -168,7 +176,7 @@
 				<div class="col">
 					<label for="week">주기 설정 (cron)</label>
 					<input type="text" class="form-control" name="cycleCron" value="* * * * * *">
-					<small id="cronHelp" class="form-text text-muted">ex) 매일 저녁 6시 : 0 0 18 * * ?</small>
+					<small id="cronHelp" class="form-text text-muted">ex) "초 분 시 일 월 요일" => 매일 저녁 6시 : 0 0 18 * * ?</small>
 				</div>
 			</div>
 			<div class="form-group form-check">

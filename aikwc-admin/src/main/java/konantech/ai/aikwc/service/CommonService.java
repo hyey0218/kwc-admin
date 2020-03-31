@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.springframework.ui.Model;
 
+import konantech.ai.aikwc.entity.Agency;
+import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.KLog;
 
 public interface CommonService {
@@ -15,4 +17,8 @@ public interface CommonService {
 	public void readAllLog();
 	
 	public List<KLog> getAgencyLogList(String agency);
+	public List<KLog> getAllLog();
+	public List<Agency> getAgencyAll();
+	
+	public List<Group> getGroupInAgency(String agency);
 }

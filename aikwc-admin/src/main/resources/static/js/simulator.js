@@ -127,11 +127,3 @@ function runningSatus(stat,pk){
 	return $button;	
 }
 
-function taskProgress(curTask){
-	let tasks = 10;
-	let perTask = ((tasks-curTask)/tasks) * 100;
-	$("#taskProg").css("width" , perTask+"%");
-	$("#availableTask").text(tasks-curTask);
-	$("#availableTask").val(tasks-curTask);
-	
-}

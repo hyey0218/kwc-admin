@@ -14,7 +14,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 @EnableScheduling
 public class ScheduleConfig implements SchedulingConfigurer{
 
-	private static int TASK_CORE_POOL_SIZE = 50;
+	private static int TASK_CORE_POOL_SIZE = 50; //AsyncConfig 수와 같게 해주자
     private static String EXECUTOR_BEAN_NAME = "KWCSchedule-";
 	
 	@Override

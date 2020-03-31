@@ -134,6 +134,22 @@ function topMessage(j){
 	$msgDiv.append($anch);
 }
 
+function agencySelect(obj){
+	if($(obj).val() == "")
+		return false;
+	
+	let requestUrl = "/manage/groupInAgency";
+	let jObj = {}
+	jObj.agency = $(obj).val();
+	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj).result;
+	$("#selectGroup > option:gt(0)").remove();
+	if(retJson){
+		let $elementSelect = $("#selectGroup");
+		$(retJson).each(function(i,j){
+			$elementSelect.append($("<option>", {value: j.pk} ).text(j.name) );
+		})
+	}
+}
 
 
 function groupSelect(obj){
@@ -170,4 +186,13 @@ function siteSelect(obj){
 			$elementSelect.append($("<option>", {value: j.pk} ).text(j.name) );
 		})
 	}
+}
+
+
+function taskProgress(curTask){
+	let tasks = 50;
+	let perTask = ((tasks-curTask)/tasks) * 100;
+	$("#taskProg").css("width" , perTask+"%");
+	$("#availableTask").text(tasks-curTask);
+	$("#availableTask").val(tasks-curTask);
 }

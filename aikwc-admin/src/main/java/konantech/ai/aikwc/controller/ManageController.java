@@ -58,7 +58,16 @@ public class ManageController {
 		
 		return "clt/manage"+menuNm;
 	}
-	
+	@RequestMapping(value ="/groupInAgency", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> groupInAgency(@RequestBody Group group) {
+		
+		List<Group> result = commonService.getGroupInAgency(group.getAgency());
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("result", result);
+		
+		return map;
+	}
 	@RequestMapping(value ="/siteInGroup", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String,Object> siteInGroup(@RequestBody Site site) {

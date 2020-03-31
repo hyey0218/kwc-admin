@@ -1,4 +1,21 @@
-
+$(document).ready(function(){
+	//Web Sockect
+	var sock = new SockJS("/ws/getStatus");
+	
+	sock.onopen = function(){
+		console.log("open")
+	}
+	
+	sock.onmessage = function(message) { 
+		let jObj = JSON.parse(message.data);
+		if(jObj.taskCnt != undefined){
+			taskProgress(Number(jObj.taskCnt));
+		}
+	}
+	
+	
+	taskProgress(Number($("#curTask").val()));
+});
 
 function changeType(obj){
 	let type = $(obj).val();

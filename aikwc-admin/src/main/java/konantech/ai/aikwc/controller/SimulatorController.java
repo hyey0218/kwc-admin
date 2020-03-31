@@ -72,18 +72,15 @@ public class SimulatorController {
 	public String runSchedule(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
 			,@RequestParam(name = "menuNo", required = false, defaultValue = "1") String menuNo
 			,Model model) {
-		Map map = commonService.commInfo(agencyNo);
-		Agency selAgency = (Agency) map.get("selAgency");
-		model.addAttribute("selAgency", selAgency);
-		model.addAttribute("agencyList", map.get("agencyList"));
-		model.addAttribute("groupList", map.get("groupList"));
-		model.addAttribute("agencyNo", selAgency.getPk());
+		
+		List<Agency> agencyList = commonService.getAgencyAll();
+		model.addAttribute("agencyList", agencyList);
 		model.addAttribute("menuNo", "2");
 		
 		List<Map<String, String>> list = taskService.getAllTaskWithCollectorName();
 		model.addAttribute("taskList", list);
 		
-		model.addAttribute("taskCnt", list.size());
+		model.addAttribute("taskCnt", asyncConfig.getTaskCount());
 		model.addAttribute("taskRsvCnt", scheduleService.getSchedulingTaskCount());
 		model.addAttribute("taskRunCnt", scheduleService.getTaskCount());
 		
@@ -94,16 +91,10 @@ public class SimulatorController {
 			,@RequestParam(name = "menuNo", required = false, defaultValue = "1") String menuNo
 			,Model model) {
 		
-		Map map = commonService.commInfo(agencyNo);
-		Agency selAgency = (Agency) map.get("selAgency");
-		model.addAttribute("selAgency", selAgency);
-		model.addAttribute("agencyList", map.get("agencyList"));
-		model.addAttribute("groupList", map.get("groupList"));
-		model.addAttribute("agencyNo", selAgency.getPk());
 		model.addAttribute("menuNo", "3");
 		
 		List<KLog> logList = new ArrayList<KLog>();
-		logList = commonService.getAgencyLogList(selAgency.getStrPk());
+		logList = commonService.getAllLog();
 		model.addAttribute("logList", logList);
 		return "sml/viewLog";
 	}
