@@ -80,6 +80,13 @@ public class SimulatorController {
 		model.addAttribute("agencyNo", selAgency.getPk());
 		model.addAttribute("menuNo", "2");
 		
+		List<Map<String, String>> list = taskService.getAllTaskWithCollectorName();
+		model.addAttribute("taskList", list);
+		
+		model.addAttribute("taskCnt", list.size());
+		model.addAttribute("taskRsvCnt", scheduleService.getSchedulingTaskCount());
+		model.addAttribute("taskRunCnt", scheduleService.getTaskCount());
+		
 		return "sml/runSchedule";
 	}
 	@RequestMapping("/log")
@@ -138,7 +145,7 @@ public class SimulatorController {
 		//1. update Running status / send websocket message
 		collectorService.updateStatus(collector.getPk(), "R");
 		
-		CompletableFuture cf = crawlService.webCrawl(selectedCollector);
+		CompletableFuture cf = crawlService.webCrawlThread(selectedCollector);
 		statusHandler.sendTaskCnt(asyncConfig.getTaskCount());
 		
 		CompletableFuture<Void> after = cf.handle((res,ex) -> {
@@ -165,11 +172,11 @@ public class SimulatorController {
 	}
 	
 	@RequestMapping(value="/schedule/delete", method = RequestMethod.POST)
-	@ResponseBody
-	public void deleteSchdule() throws Exception {
-		KTask task = new KTask();
-		task.setTaskNo("crawlTask");
+	public String deleteSchdule(@ModelAttribute(name = "pk") String pk) throws Exception {
+		KTask task = taskService.getTaskByPk(pk);
 		scheduleService.stopSchedule(task);
+		taskService.deleteTask(task);
+		return "redirect:/simulator/schedule";
 	}
 	
 	public void preworkForCrawling(Collector selectedCollector) {

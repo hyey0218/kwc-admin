@@ -46,12 +46,7 @@ public class CrawlServiceImpl implements CrawlService {
 	@Autowired
 	CrawlRepository crawlRepository;
 	
-	@Async("kwcExecutor")
-	public CompletableFuture webCrawl(Collector collector) throws Exception {
-		StringBuffer logBuffer = new StringBuffer();
-		String threadName = Thread.currentThread().getName();
-		String colInfo = collector.getToSite().getName() + "/" + collector.getName();
-		logBuffer.append("["+CommonUtil.getCurrentTimeStr("")+"] START TASK " + threadName ).append(" : " + colInfo +"\n");
+	private KWCSelenium getKWCBot() {
 		KWCSelenium kwc = new KWCSelenium(driverPath) {
 			@Override
 			public int crawlWeb(Object collector ,JpaRepository repository) {
@@ -146,7 +141,17 @@ public class CrawlServiceImpl implements CrawlService {
 				}
 			}
 		};
+		return kwc;
+	}
+	
+	@Async("kwcExecutor")
+	public CompletableFuture webCrawlThread(Collector collector) throws Exception {
+		StringBuffer logBuffer = new StringBuffer();
+		String threadName = Thread.currentThread().getName();
+		String colInfo = collector.getToSite().getName() + "/" + collector.getName();
+		logBuffer.append("["+CommonUtil.getCurrentTimeStr("")+"] START TASK " + threadName ).append(" : " + colInfo +"\n");
 		
+		KWCSelenium kwc = getKWCBot();
 		//2. crawling 페이지별로  insert하는 크롤링
 		int result = kwc.crawlWeb(collector, crawlRepository);
 		String endTime = "["+CommonUtil.getCurrentTimeStr("")+"] ";
@@ -167,4 +172,34 @@ public class CrawlServiceImpl implements CrawlService {
 		kwc.insertLog(commonService);
 		return CompletableFuture.completedFuture(result);
 	}
+
+	public int webCrawlDefault(Collector collector) throws Exception {
+		StringBuffer logBuffer = new StringBuffer();
+		String threadName = Thread.currentThread().getName();
+		String colInfo = collector.getToSite().getName() + "/" + collector.getName();
+		logBuffer.append("["+CommonUtil.getCurrentTimeStr("")+"] START TASK " + threadName ).append(" : " + colInfo +"\n");
+		
+		KWCSelenium kwc = getKWCBot();
+		//2. crawling 페이지별로  insert하는 크롤링
+		int result = kwc.crawlWeb(collector, crawlRepository);
+		String endTime = "["+CommonUtil.getCurrentTimeStr("")+"] ";
+		String sePage = collector.getStartPage() + " ~ " + collector.getEndPage();
+		//3. DB status update Success+Wait
+		if(result == 0) {
+			collectorService.updateStatus(collector.getPk(), "SW");
+			logBuffer.append(endTime+ Thread.currentThread().getName() +" : " +  colInfo +" [SUCCESS] : "+sePage+" page \n");
+			kwc.log.setComment(colInfo + " 수집 완료 [SUCCESS]");
+		}
+		else {
+			collectorService.updateStatus(collector.getPk(), "FW");
+			logBuffer.append(endTime+ Thread.currentThread().getName() +" : " +  colInfo +" [FAIL] : "+sePage+" page \n");
+			kwc.log.setComment(colInfo + " 수집 완료 : [FAIL]");
+		}
+		logBuffer.append("["+CommonUtil.getCurrentTimeStr("")+"] END TASK " + threadName ).append(" : " + colInfo);
+		kwc.log.setLogCont(logBuffer.toString());
+		kwc.insertLog(commonService);
+		
+		return result;
+	}
+	
 }

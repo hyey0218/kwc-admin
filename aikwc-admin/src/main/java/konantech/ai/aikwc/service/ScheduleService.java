@@ -9,5 +9,6 @@ public interface ScheduleService {
 	
 	public void registerSchedule(KTask task, Collector collector) ;
 	public void stopSchedule(KTask task);
-	
+	public int getTaskCount();
+	public int getSchedulingTaskCount();
 }

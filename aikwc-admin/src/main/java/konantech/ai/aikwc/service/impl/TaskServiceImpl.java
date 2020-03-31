@@ -1,6 +1,7 @@
 package konantech.ai.aikwc.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,10 @@ public class TaskServiceImpl implements TaskService {
 	
 	@Autowired
 	KTaskRepository taskRepository;
+	
+	public KTask getTaskByPk(String pk) {
+		return taskRepository.findById(Integer.parseInt(pk)).get();
+	}
 	
 	public List<KTask> getTaskByCollector(String collector) {
 		return taskRepository.findAllByCollector(collector);
@@ -34,5 +39,17 @@ public class TaskServiceImpl implements TaskService {
 	
 	public void saveTask(KTask task) {
 		taskRepository.saveAndFlush(task);
+	}
+	
+	public List<KTask> getAllTask(){
+		return taskRepository.findByUseyn("Y");
+	}
+	
+	public List<Map<String, String>> getAllTaskWithCollectorName(){
+		return taskRepository.findByUseynWithCollName();
+	}
+	
+	public void deleteTask(KTask task) {
+		taskRepository.delete(task);
 	}
 }

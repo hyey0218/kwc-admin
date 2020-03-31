@@ -10,5 +10,7 @@ import konantech.ai.aikwc.entity.Collector;
 public interface CrawlService {
 
 	@Async("kwcExecutor")
-	public CompletableFuture webCrawl(Collector collector) throws Exception;
+	public CompletableFuture webCrawlThread(Collector collector) throws Exception;
+	
+	public int webCrawlDefault(Collector collector) throws Exception;
 }

@@ -29,9 +29,9 @@ public class ScheduleServiceImpl implements ScheduleService{
 	
 	public void registerSchedule(KTask task, Collector collector) {
 		ScheduledFuture<?> future = this.tpts.schedule(()->{
-			System.out.println(">>>>>>>>>>>>>>>>>>>>> schdule register");
+			System.out.println(">>>>>>>>>>>>>>>>>>>>> schdule register :" + getTaskCount() +"/"+ getUsableTaskCount());
 			try {
-				crawlService.webCrawl(collector);
+				crawlService.webCrawlDefault(collector);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -45,5 +45,16 @@ public class ScheduleServiceImpl implements ScheduleService{
 		scheduleMap.get(task.getTaskNo()).cancel(true);
 		scheduleMap.remove(task.getTaskNo());
 	}
+	@Override
+	public int getTaskCount() {
+		return this.tpts.getActiveCount();
+	}
+	@Override
+	public int getSchedulingTaskCount() {
+		return scheduleMap.size();
+	}
 	
+	public int getUsableTaskCount() {
+		return this.tpts.getScheduledThreadPoolExecutor().getMaximumPoolSize();
+	}
 }

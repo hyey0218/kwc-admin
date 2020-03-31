@@ -25,6 +25,8 @@ public class KTask {
 	@Column
 	String agency;
 	@Column
+	String grp;
+	@Column
 	String collector;
 	@Column
 	String cType;
@@ -34,10 +36,6 @@ public class KTask {
 	String end;
 	@Column
 	String cycleCron;
-	@Column
-	LocalDateTime startTime;
-	@Column
-	LocalDateTime endTime;
 	@Column
 	String status;
 	@Column
