@@ -32,6 +32,7 @@ import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.CrawlService;
 import konantech.ai.aikwc.service.ScheduleService;
+import konantech.ai.aikwc.service.TaskService;
 
 @Controller
 @RequestMapping("simulator")
@@ -50,6 +51,8 @@ public class SimulatorController {
 	
 	@Autowired
 	ScheduleService scheduleService;
+	@Autowired
+	TaskService taskService;
 	
 	@RequestMapping("/list")
 	public String list(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
@@ -126,10 +129,11 @@ public class SimulatorController {
 		selectedCollector.setStartPage(collector.getStartPage());
 		selectedCollector.setEndPage(collector.getEndPage());
 		
-		Agency Agency = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
-		String agencyName = Agency.getName();
-		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
-		selectedCollector.setChannel("기관");
+//		Agency Agency = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
+//		String agencyName = Agency.getName();
+//		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
+//		selectedCollector.setChannel("기관");
+		preworkForCrawling(selectedCollector);
 		
 		//1. update Running status / send websocket message
 		collectorService.updateStatus(collector.getPk(), "R");
@@ -147,9 +151,16 @@ public class SimulatorController {
 	@RequestMapping(value="/schedule/save", method = RequestMethod.POST)
 	public String saveSchdule(@ModelAttribute KTask task) throws Exception {
 //		KTask task = new KTask();
-		task.setTaskNo("crawlTask");
-		scheduleService.registerSchedule(task,"*/10 * * * * *");
-		
+//		List<KTask> list = taskService.getTaskByCollector(task.getCollector());
+		Long count = taskService.getTaskByCollectorCount(task.getCollector());
+		String taskNo = "C"+task.getCollector()+"-"+(count+1);
+		task.setTaskNo(taskNo); // C8-1
+		Collector collector = collectorService.getCollectorInfo(Integer.parseInt(task.getCollector()));
+		collector.setStartPage(task.getStart());
+		collector.setEndPage(task.getEnd());
+		preworkForCrawling(collector);
+		scheduleService.registerSchedule(task,collector);
+		taskService.saveTask(task);
 		return "redirect:/simulator/schedule";
 	}
 	
@@ -159,6 +170,13 @@ public class SimulatorController {
 		KTask task = new KTask();
 		task.setTaskNo("crawlTask");
 		scheduleService.stopSchedule(task);
+	}
+	
+	public void preworkForCrawling(Collector selectedCollector) {
+		Agency Agency = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
+		String agencyName = Agency.getName();
+		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
+		selectedCollector.setChannel("기관");
 	}
 }
 

@@ -47,7 +47,7 @@ public class CrawlServiceImpl implements CrawlService {
 	CrawlRepository crawlRepository;
 	
 	@Async("kwcExecutor")
-	public CompletableFuture webCrawl(Collector collector ) throws Exception {
+	public CompletableFuture webCrawl(Collector collector) throws Exception {
 		StringBuffer logBuffer = new StringBuffer();
 		String threadName = Thread.currentThread().getName();
 		String colInfo = collector.getToSite().getName() + "/" + collector.getName();
