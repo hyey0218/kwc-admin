@@ -80,7 +80,7 @@ public class SimulatorController {
 		List<Map<String, String>> list = taskService.getAllTaskWithCollectorName();
 		model.addAttribute("taskList", list);
 		
-		model.addAttribute("taskCnt", asyncConfig.getTaskCount());
+		model.addAttribute("taskCnt", asyncConfig.getTaskCount() + scheduleService.getTaskCount());
 		model.addAttribute("taskRsvCnt", scheduleService.getSchedulingTaskCount());
 		model.addAttribute("taskRunCnt", scheduleService.getTaskCount());
 		
@@ -114,7 +114,7 @@ public class SimulatorController {
 			
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", result);
-		map.put("taskCnt", asyncConfig.getTaskCount());
+		map.put("taskCnt", asyncConfig.getTaskCount() + scheduleService.getTaskCount());
 		
 		return map;
 	}
@@ -131,13 +131,13 @@ public class SimulatorController {
 //		String agencyName = Agency.getName();
 //		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
 //		selectedCollector.setChannel("기관");
-		preworkForCrawling(selectedCollector);
+		crawlService.preworkForCrawling(selectedCollector);
 		
 		//1. update Running status / send websocket message
 		collectorService.updateStatus(collector.getPk(), "R");
 		
 		CompletableFuture cf = crawlService.webCrawlThread(selectedCollector);
-		statusHandler.sendTaskCnt(asyncConfig.getTaskCount());
+		statusHandler.sendTaskCnt(asyncConfig.getTaskCount()+scheduleService.getTaskCount());
 		
 		CompletableFuture<Void> after = cf.handle((res,ex) -> {
 			statusHandler.sendTaskCnt(asyncConfig.getAfterTaskCount());
@@ -156,7 +156,7 @@ public class SimulatorController {
 		Collector collector = collectorService.getCollectorInfo(Integer.parseInt(task.getCollector()));
 		collector.setStartPage(task.getStart());
 		collector.setEndPage(task.getEnd());
-		preworkForCrawling(collector);
+		crawlService.preworkForCrawling(collector);
 		scheduleService.registerSchedule(task,collector);
 		taskService.saveTask(task);
 		return "redirect:/simulator/schedule";
@@ -170,11 +170,5 @@ public class SimulatorController {
 		return "redirect:/simulator/schedule";
 	}
 	
-	public void preworkForCrawling(Collector selectedCollector) {
-		Agency Agency = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
-		String agencyName = Agency.getName();
-		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
-		selectedCollector.setChannel("기관");
-	}
 }
 

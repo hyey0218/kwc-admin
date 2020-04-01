@@ -13,4 +13,6 @@ public interface CrawlService {
 	public CompletableFuture webCrawlThread(Collector collector) throws Exception;
 	
 	public int webCrawlDefault(Collector collector) throws Exception;
+	
+	public void preworkForCrawling(Collector selectedCollector);
 }

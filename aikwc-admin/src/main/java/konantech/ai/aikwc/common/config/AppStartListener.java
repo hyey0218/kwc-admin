@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.KTask;
 import konantech.ai.aikwc.service.CollectorService;
+import konantech.ai.aikwc.service.CrawlService;
 import konantech.ai.aikwc.service.ScheduleService;
 import konantech.ai.aikwc.service.TaskService;
 
@@ -24,6 +25,8 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 	@Autowired
 	CollectorService collectorService;
 	
+	@Autowired
+	CrawlService crawlService;
 	@Override
 	public void onApplicationEvent(ApplicationStartedEvent event) {
 		System.out.println("###########Start Event - AppStartListener#############");
@@ -35,6 +38,7 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 		if(taskList.size() > 0) {
 			taskList.forEach((task)->{
 				Collector collector = collectorService.getCollectorInfo(Integer.parseInt(task.getCollector()));
+				crawlService.preworkForCrawling(collector);
 				scheduleService.registerSchedule(task, collector);
 			});
 		}

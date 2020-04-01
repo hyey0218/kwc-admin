@@ -12,6 +12,7 @@
 	<artifactId>aikwc-admin</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>aikwc-admin</name>
+	<packaging>jar</packaging>
 	<description>Konantechology KWC Admin</description>
 
 	<properties>

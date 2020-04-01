@@ -14,16 +14,18 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.common.utils.CommonUtil;
 import konantech.ai.aikwc.common.utils.KWCSelenium;
+import konantech.ai.aikwc.entity.Agency;
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.Crawl;
 import konantech.ai.aikwc.repository.CrawlRepository;
@@ -33,6 +35,7 @@ import konantech.ai.aikwc.service.CrawlService;
 
 @Service("CrawlService")
 public class CrawlServiceImpl implements CrawlService {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Value("${chrome.web.driver.path}")
 	String driverPath;
@@ -146,6 +149,7 @@ public class CrawlServiceImpl implements CrawlService {
 	
 	@Async("kwcExecutor")
 	public CompletableFuture webCrawlThread(Collector collector) throws Exception {
+		logger.info("start task");
 		StringBuffer logBuffer = new StringBuffer();
 		String threadName = Thread.currentThread().getName();
 		String colInfo = collector.getToSite().getName() + "/" + collector.getName();
@@ -174,6 +178,7 @@ public class CrawlServiceImpl implements CrawlService {
 	}
 
 	public int webCrawlDefault(Collector collector) throws Exception {
+		logger.info("start task");
 		StringBuffer logBuffer = new StringBuffer();
 		String threadName = Thread.currentThread().getName();
 		String colInfo = collector.getToSite().getName() + "/" + collector.getName();
@@ -200,6 +205,13 @@ public class CrawlServiceImpl implements CrawlService {
 		kwc.insertLog(commonService);
 		
 		return result;
+	}
+	
+	public void preworkForCrawling(Collector selectedCollector) {
+		Agency Agency = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
+		String agencyName = Agency.getName();
+		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
+		selectedCollector.setChannel("기관");
 	}
 	
 }

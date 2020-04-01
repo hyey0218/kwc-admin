@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.repository.AgencyRepository;
 import konantech.ai.aikwc.service.CommonService;
 
 @Controller
@@ -20,9 +21,13 @@ public class AdminController {
 	@Autowired
 	CommonService commonService;
 	
+	@Autowired
+	AgencyRepository agency;
+	
 	@RequestMapping("/")
 	public String index() {
-		return "index";
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>");
+		return "redirect:/main";
 	}
 	
 	@RequestMapping("/main")
