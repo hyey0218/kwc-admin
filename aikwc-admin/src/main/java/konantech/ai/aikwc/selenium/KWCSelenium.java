@@ -1,4 +1,4 @@
-package konantech.ai.aikwc.common.utils;
+package konantech.ai.aikwc.selenium;
 
 import java.util.List;
 import java.util.Set;
@@ -22,28 +22,24 @@ import org.springframework.util.StringUtils;
 
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.KLog;
+import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.repository.KLogRepository;
 import konantech.ai.aikwc.service.CommonService;
 
-public abstract class KWCSelenium{
+public abstract class KWCSelenium<T extends Collector>{
 	
 	private String driverPath;
 //	private ChromeDriver webDriver;
 	protected WebDriver webDriver;
-	
-	/***** 데이터 테이블에 적재될 엘리먼트 *****/
-	protected String startUrl;
-	protected By titleLink;
-	protected By title;
-	protected By writer;
-	protected By writeDate;
-	protected By content;
+	protected int result;
+	protected T c;
 	
 	public KLog log;
 	
-	public KWCSelenium(String driverPath) {
+	public KWCSelenium(String driverPath, T collector) {
 		this.driverPath = driverPath;
 		this.log = new KLog();
+		this.c = (T)collector;
 	}
 	
 	public void openBrowser() throws Exception{
@@ -64,7 +60,6 @@ public abstract class KWCSelenium{
 			this.webDriver.quit();
 		}
 	}
-	
 	/**
 	 * 기관 별로 크롤링 내용을 만들어서 사용합니다.
 	 * @param collector
@@ -72,8 +67,21 @@ public abstract class KWCSelenium{
 	 * @return 0: SUCCESS , 1: FAIL
 	 * @throws Exception
 	 */
-	public abstract int crawlWeb(Object collector, JpaRepository repository) throws Exception;
+	public abstract void prework();
+	public abstract int work(JpaRepository repository) ;
+	public abstract void afterwork();
 	
+	/**
+	 * 크롤링 작업 콜 메서드
+	 * @param collector
+	 * @param repository
+	 */
+	public void crawlWeb(JpaRepository repository) {
+		prework();
+		int r = work(repository);
+		this.result = r;
+		afterwork();
+	}
 	/**
 	 * 로그 테이블 적재
 	 */

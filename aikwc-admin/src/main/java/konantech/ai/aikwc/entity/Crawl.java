@@ -52,6 +52,8 @@ public class Crawl {
 	String wtimeStr;
 	@Column
 	String collector;
+	@Column
+	String urlHash;
 	
 	public Crawl() {}
 	@Builder

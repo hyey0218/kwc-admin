@@ -28,26 +28,29 @@ import konantech.ai.aikwc.entity.Agency;
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.KLog;
 import konantech.ai.aikwc.entity.KTask;
+import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.CrawlService;
 import konantech.ai.aikwc.service.ScheduleService;
 import konantech.ai.aikwc.service.TaskService;
+import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
 
 @Controller
 @RequestMapping("simulator")
 public class SimulatorController {
-	@Resource
+	@Autowired
 	CommonService commonService;
-	
-	@Resource
-	CollectorService collectorService;
 	@Autowired
 	CrawlService crawlService;
 	@Autowired
 	AsyncConfig asyncConfig;
 	@Autowired
 	StatusWebSocketHandler statusHandler;
+	
+	
+	@Autowired
+	BasicCollectorServiceImpl basicCollectorService;
 	
 	@Autowired
 	ScheduleService scheduleService;
@@ -106,11 +109,11 @@ public class SimulatorController {
 	public Map<String,Object> collectorList(@RequestBody Map<String,String> params) {
 		
 		String agency = params.get("agencyNo");
-		List<Collector> result = new ArrayList<Collector>();
+		List<BasicCollector> result = new ArrayList<BasicCollector>();
 		if(agency != null && !agency.equals("")) {
-			result = collectorService.getCollectorListInAgency(Integer.parseInt(agency));
+			result = basicCollectorService.getCollectorListInAgency(Integer.parseInt(agency));
 		}else
-			result = collectorService.getCollectorList();
+			result = basicCollectorService.getCollectorList();
 			
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", result);
@@ -121,22 +124,17 @@ public class SimulatorController {
 	
 	@RequestMapping("/crawl")
 	@ResponseBody
-	public void getCrawl(@RequestBody Collector collector) throws Exception {
+	public void getCrawl(@RequestBody Map<String,String> params) throws Exception {
 		
-		Collector selectedCollector = collectorService.getCollectorInfo(collector.getPk());
-		selectedCollector.setStartPage(collector.getStartPage());
-		selectedCollector.setEndPage(collector.getEndPage());
+		int pk = Integer.parseInt(params.get("pk"));
+		Collector selectedCollector = basicCollectorService.getCollectorInfo(pk);
 		
-//		Agency Agency = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
-//		String agencyName = Agency.getName();
-//		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
-//		selectedCollector.setChannel("기관");
-		crawlService.preworkForCrawling(selectedCollector);
+		Class collectorClass = Class.forName(selectedCollector.getPackageClassName());
 		
 		//1. update Running status / send websocket message
-		collectorService.updateStatus(collector.getPk(), "R");
+		basicCollectorService.updateStatus(pk, "R");
 		
-		CompletableFuture cf = crawlService.webCrawlThread(selectedCollector);
+		CompletableFuture cf = crawlService.webCrawlThread(collectorClass, pk, params.get("startPage"), params.get("endPage"));
 		statusHandler.sendTaskCnt(asyncConfig.getTaskCount()+scheduleService.getTaskCount());
 		
 		CompletableFuture<Void> after = cf.handle((res,ex) -> {
@@ -153,11 +151,7 @@ public class SimulatorController {
 		Long count = taskService.getTaskByCollectorCount(task.getCollector());
 		String taskNo = "C"+task.getCollector()+"-"+(count+1);
 		task.setTaskNo(taskNo); // C8-1
-		Collector collector = collectorService.getCollectorInfo(Integer.parseInt(task.getCollector()));
-		collector.setStartPage(task.getStart());
-		collector.setEndPage(task.getEnd());
-		crawlService.preworkForCrawling(collector);
-		scheduleService.registerSchedule(task,collector);
+		scheduleService.registerSchedule(task);
 		taskService.saveTask(task);
 		return "redirect:/simulator/schedule";
 	}

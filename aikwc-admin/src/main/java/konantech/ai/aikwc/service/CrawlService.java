@@ -6,13 +6,12 @@ import java.util.concurrent.Future;
 import org.springframework.scheduling.annotation.Async;
 
 import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.collectors.BasicCollector;
 
 public interface CrawlService {
 
 	@Async("kwcExecutor")
-	public CompletableFuture webCrawlThread(Collector collector) throws Exception;
+	public CompletableFuture webCrawlThread(Class collector, int pk, String start, String end) throws Exception;
 	
-	public int webCrawlDefault(Collector collector) throws Exception;
-	
-	public void preworkForCrawling(Collector selectedCollector);
+	public int webCrawlDefault(Class collector, int pk, String start, String end) throws Exception;
 }

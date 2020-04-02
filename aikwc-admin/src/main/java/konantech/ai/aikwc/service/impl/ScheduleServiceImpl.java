@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.KTask;
+import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.service.CrawlService;
 import konantech.ai.aikwc.service.ScheduleService;
 
@@ -24,14 +25,20 @@ public class ScheduleServiceImpl implements ScheduleService{
 	@Autowired
 	CrawlService crawlService;
 	
+	@Autowired
+	CollectorServiceImpl collectorService;
+	
 	
 	private Map<String, ScheduledFuture<?>> scheduleMap = new ConcurrentHashMap<>();
 	
-	public void registerSchedule(KTask task, Collector collector) {
+	public void registerSchedule(KTask task) {
 		ScheduledFuture<?> future = this.tpts.schedule(()->{
 			System.out.println(">>>>>>>>>>>>>>>>>>>>> schdule register :" + getTaskCount() +"/"+ getUsableTaskCount());
 			try {
-				crawlService.webCrawlDefault(collector);
+				int pk = Integer.parseInt(task.getCollector());
+				Collector collector = collectorService.getCollectorInfo(pk);
+				Class collectorClass = Class.forName(collector.getPackageClassName());
+				crawlService.webCrawlDefault(collectorClass, collector.getPk(), task.getStart(), task.getEnd());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

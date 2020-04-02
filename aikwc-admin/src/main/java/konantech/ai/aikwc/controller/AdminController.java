@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.repository.AgencyRepository;
 import konantech.ai.aikwc.service.CommonService;
 

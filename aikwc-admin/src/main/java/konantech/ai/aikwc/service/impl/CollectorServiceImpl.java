@@ -24,9 +24,8 @@ import konantech.ai.aikwc.repository.GroupRepository;
 import konantech.ai.aikwc.repository.SiteRepository;
 import konantech.ai.aikwc.service.CollectorService;
 
-@Service("CollectorService")
+@Service("collectorService")
 public class CollectorServiceImpl implements CollectorService {
-
 	@Autowired
 	GroupRepository groupRepository;
 	
@@ -34,7 +33,7 @@ public class CollectorServiceImpl implements CollectorService {
 	private SiteRepository siteRepository;
 	
 	@Autowired
-	private CollectorRepository collectorRepository;
+	CollectorRepository collectorRepository;
 	
 	@Autowired
 	private AgencyRepository agencyRepository;
@@ -67,9 +66,6 @@ public class CollectorServiceImpl implements CollectorService {
 	public List<Collector> getCollectorListInSite(String site){
 		return collectorRepository.findBySite(site);
 	}
-	public Collector getCollectorInfo(int pk) {
-		return collectorRepository.findById(pk).get();
-	}
 	public List<Collector> getCollectorListInSiteInUse(String site){
 		return collectorRepository.findAllInSite(site);
 	}
@@ -78,21 +74,7 @@ public class CollectorServiceImpl implements CollectorService {
 	}
 	
 	public void saveCollectorDetail(Collector collector){
-		Optional<Collector> op = collectorRepository.findById(collector.getPk());
-		
-		op.ifPresent(newer -> {
-			newer.setStartUrl(collector.getStartUrl());
-			newer.setTitleLink(collector.getTitleLink());
-			newer.setTitle(collector.getTitle());
-			newer.setContent(collector.getContent());
-			newer.setWriter(collector.getWriter());
-			newer.setWdatePattern(collector.getWdatePattern());
-			newer.setWriteDate(collector.getWriteDate());
-			newer.setPageUrl(collector.getPageUrl());
-			newer.setContId(collector.getContId());
-			collectorRepository.save(newer);
-		});
-		
+		//
 	}
 	
 	public void updateStatus(int pk, String status) {
@@ -119,4 +101,11 @@ public class CollectorServiceImpl implements CollectorService {
 	public Site saveSite(Site site) {
 		return siteRepository.save(site);
 	}
+
+	@Override
+	public Collector getCollectorInfo(int pk) {
+		return collectorRepository.findById(pk).get();
+	}
+	
+	
 }

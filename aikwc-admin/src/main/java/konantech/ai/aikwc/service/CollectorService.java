@@ -8,7 +8,7 @@ import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.Site;
 
-public interface CollectorService {
+public interface CollectorService<T extends Collector> {
 	public Group saveGroup(Group group);
 	public void updateGroup(Group group);
 	public void deleteGroup(Group group);
@@ -16,19 +16,19 @@ public interface CollectorService {
 	public List<Site> getSiteList();
 	public List<Site> getSiteListInAgency(int grp);
 	
-	public List<Collector> getCollectorList();
+	public List<T> getCollectorList();
 	
-	public Collector saveCollector(Collector collector);
+	public T saveCollector(T collector);
 	
-	public List<Collector> getCollectorListInSite(String site);
-	public List<Collector> getCollectorListInSiteInUse(String site);
+	public List<T> getCollectorListInSite(String site);
+	public List<T> getCollectorListInSiteInUse(String site);
 	
-	public List<Collector> getCollectorListInAgency(int agency);
+	public List<T> getCollectorListInAgency(int agency);
 	
-	public Collector getCollectorInfo(int pk) ;
+	public T getCollectorInfo(int pk) ;
 	
 	
-	public void saveCollectorDetail(Collector collector);
+	public void saveCollectorDetail(T collector);
 	
 	public void updateStatus(int pk, String status);
 	
