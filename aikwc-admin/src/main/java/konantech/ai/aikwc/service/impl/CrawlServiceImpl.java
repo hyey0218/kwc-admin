@@ -101,7 +101,9 @@ public class CrawlServiceImpl implements CrawlService {
 		
 		BasicCollectorKWC kwc = new BasicCollectorKWC(driverPath, collector);
 		//2. crawling 페이지별로  insert하는 크롤링
-		int result = kwc.work(crawlRepository);
+//		int result = kwc.work(crawlRepository);
+		int result = kwc.crawlWeb(crawlRepository);
+		
 		String endTime = "["+CommonUtil.getCurrentTimeStr("")+"] ";
 		String sePage = collector.getStartPage() + " ~ " + collector.getEndPage();
 		//3. DB status update Success+Wait

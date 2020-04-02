@@ -31,7 +31,6 @@ public abstract class KWCSelenium<T extends Collector>{
 	private String driverPath;
 //	private ChromeDriver webDriver;
 	protected WebDriver webDriver;
-	protected int result;
 	protected T c;
 	
 	public KLog log;
@@ -67,20 +66,28 @@ public abstract class KWCSelenium<T extends Collector>{
 	 * @return 0: SUCCESS , 1: FAIL
 	 * @throws Exception
 	 */
-	public abstract void prework();
-	public abstract int work(JpaRepository repository) ;
-	public abstract void afterwork();
+	public abstract void prework() throws Exception;
+	public abstract int work(JpaRepository repository) throws Exception;
+	public abstract void afterwork() throws Exception;
 	
 	/**
 	 * 크롤링 작업 콜 메서드
 	 * @param collector
 	 * @param repository
 	 */
-	public void crawlWeb(JpaRepository repository) {
-		prework();
-		int r = work(repository);
-		this.result = r;
-		afterwork();
+	public int crawlWeb(JpaRepository repository) {
+		int ret = 1;
+		try {
+			prework();
+			ret = work(repository);
+			afterwork();
+		}catch(Exception e) {
+			e.printStackTrace();
+			return 1;
+		}finally {
+			closeBrowser();
+		}
+		return ret;
 	}
 	/**
 	 * 로그 테이블 적재

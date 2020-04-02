@@ -17,7 +17,7 @@ import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.repository.CrawlRepository;
 import konantech.ai.aikwc.service.CommonService;
 
-public class BasicCollectorKWC extends KWCSelenium {
+public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 	/***** 데이터 테이블에 적재될 엘리먼트 *****/
 	private String startUrl;
 	private By titleLink;
@@ -25,15 +25,33 @@ public class BasicCollectorKWC extends KWCSelenium {
 	private By writer;
 	private By writeDate;
 	private By content;
-	
-	private BasicCollector c;
 
 	public BasicCollectorKWC(String driverPath, BasicCollector c) {
 		super(driverPath, c);
 	}
 
 	@Override
-	public void prework() {
+	public void prework() throws Exception {
+//		if(collector instanceof BasicCollector)
+//		this.c = (BasicCollector) collector;
+//	else
+//		throw new Exception("Collector 형변환 오류");
+//	if(repository instanceof CrawlRepository)
+//		repo = (CrawlRepository) repository;
+//	else
+//		throw new Exception("CrawlRepository 형변환 오류");
+	
+		this.startUrl = c.getPageUrl();
+		this.titleLink = By.xpath(c.getTitleLink());
+		this.title = By.xpath(c.getTitle());
+		this.content = By.xpath(c.getContent());
+		this.writer = By.xpath(c.getWriter());
+		this.writeDate = By.xpath(c.getWriteDate());
+		this.log.setAgency(c.getToSite().getGroup().getAgency());
+		
+		
+		c.setEndPage("");
+		openBrowser();
 	}
 
 	@Override
@@ -41,45 +59,9 @@ public class BasicCollectorKWC extends KWCSelenium {
 	}
 
 	@Override
-	public int work(JpaRepository repository) {
-//		BasicCollector c = null;
-		CrawlRepository repo = null;
-		List<Crawl> list = new ArrayList<Crawl>();
-		try {
-//			if(collector instanceof BasicCollector)
-//				this.c = (BasicCollector) collector;
-//			else
-//				throw new Exception("Collector 형변환 오류");
-//			if(repository instanceof CrawlRepository)
-//				repo = (CrawlRepository) repository;
-//			else
-//				throw new Exception("CrawlRepository 형변환 오류");
-			
-			this.startUrl = c.getPageUrl();
-			this.titleLink = By.xpath(c.getTitleLink());
-			this.title = By.xpath(c.getTitle());
-			this.content = By.xpath(c.getContent());
-			this.writer = By.xpath(c.getWriter());
-			this.writeDate = By.xpath(c.getWriteDate());
-			this.log.setAgency(c.getToSite().getGroup().getAgency());
-			
-			int startPage = Integer.parseInt(c.getStartPage());
-			int endPage = Integer.parseInt(c.getEndPage());
-			c.setEndPage("");
-			openBrowser();
-			crawlPerPage(startPage, endPage, c, repo);
-			
-		}catch(Exception e) {
-			e.printStackTrace();
-			return 1;
-		}finally {
-			closeBrowser();
-		}
-		return 0;
-	}
-	
-	
-	public void crawlPerPage(int startPage, int endPage,BasicCollector c, JpaRepository repo) throws Exception {
+	public int work(JpaRepository repository) throws Exception {
+		int startPage = Integer.parseInt(c.getStartPage());
+		int endPage = Integer.parseInt(c.getEndPage());
 		boolean isTimePattern = StringUtils.containsAny(c.getWdatePattern(), "Hms");
 		boolean idIsXpath = StringUtils.startsWith(c.getContId(), "//");
 		try {
@@ -95,31 +77,31 @@ public class BasicCollectorKWC extends KWCSelenium {
 				
 					Crawl obj = new Crawl();
 					
-						//사이트내용
-						obj.setChannel(c.getChannel());
-						obj.setSiteName(c.getToSite().getGroup().getAgencyName());
-						obj.setBoardName(c.getToSite().getName()+"/"+c.getName());
-						obj.setUrl(webDriver.getCurrentUrl());
-						obj.setCrawledTime(LocalDateTime.now());
-						if(idIsXpath)
-							obj.setUniqkey(webDriver.findElement(By.xpath(c.getContId())).getAttribute("value"));
-						else
-							obj.setUniqkey(CommonUtil.getUriParamValue(webDriver.getCurrentUrl(), c.getContId()));
-						//본문내용
-						obj.setTitle(webDriver.findElement(title).getText());
-						obj.setDoc(webDriver.findElement(content).getText());
-						obj.setWriteId(webDriver.findElement(writer).getText());
-						try {
-							obj.setWriteTime(CommonUtil.stringToLocalDateTime(webDriver.findElement(writeDate).getText(), c.getWdatePattern(),isTimePattern) );
-						}catch(java.time.format.DateTimeParseException de){
+					//사이트내용
+					obj.setChannel(c.getChannel());
+					obj.setSiteName(c.getToSite().getGroup().getAgencyName());
+					obj.setBoardName(c.getToSite().getName()+"/"+c.getName());
+					obj.setUrl(webDriver.getCurrentUrl());
+					obj.setCrawledTime(LocalDateTime.now());
+					if(idIsXpath)
+						obj.setUniqkey(webDriver.findElement(By.xpath(c.getContId())).getAttribute("value"));
+					else
+						obj.setUniqkey(CommonUtil.getUriParamValue(webDriver.getCurrentUrl(), c.getContId()));
+					//본문내용
+					obj.setTitle(webDriver.findElement(title).getText());
+					obj.setDoc(webDriver.findElement(content).getText());
+					obj.setWriteId(webDriver.findElement(writer).getText());
+					try {
+						obj.setWriteTime(CommonUtil.stringToLocalDateTime(webDriver.findElement(writeDate).getText(), c.getWdatePattern(),isTimePattern) );
+					}catch(java.time.format.DateTimeParseException de){
 //								System.out.println("****************** DateTimeParseException ********************");
-							obj.setWtimeStr(webDriver.findElement(writeDate).getText());
-						}
-						dataList.add(obj);
-						webDriver.navigate().back();
-						Thread.sleep(3000);
+						obj.setWtimeStr(webDriver.findElement(writeDate).getText());
+					}
+					dataList.add(obj);
+					webDriver.navigate().back();
+					Thread.sleep(3000);
 				}
-				repo.saveAll(dataList);
+				repository.saveAll(dataList);
 				c.setEndPage(String.valueOf(page));
 			}
 			
@@ -132,6 +114,7 @@ public class BasicCollectorKWC extends KWCSelenium {
 			throw e; // 이외 모든 예외에는 크롤링 중단
 		}finally {
 		}
+		return 0;
 	}
-
+	
 }
