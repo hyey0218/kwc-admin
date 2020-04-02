@@ -195,6 +195,7 @@ pre {
   margin-top: 0;
   margin-bottom: 1rem;
   overflow: auto;
+  font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 figure {
@@ -5620,7 +5621,7 @@ a.close.disabled {
 
 @media (min-width: 576px) {
   .modal-dialog {
-    max-width: 500px;
+    max-width: 523px;
     margin: 1.75rem auto;
   }
   .modal-dialog-scrollable {
@@ -9568,7 +9569,7 @@ a:focus {
 }
 
 #wrapper #content-wrapper {
-  background-color: #f8f9fc;
+/*   background-color: #f8f9fc; */
   width: 100%;
   overflow-x: hidden;
 }
@@ -11001,3 +11002,11 @@ footer.sticky-footer .copyright {
 body.sidebar-toggled footer.sticky-footer {
   width: 100%;
 }
+
+
+/* CUSTOM */
+#schduleRegForm {
+	font-size: 0.9rem;
+}
+
+

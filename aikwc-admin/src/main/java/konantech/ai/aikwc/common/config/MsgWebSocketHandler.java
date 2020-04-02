@@ -43,7 +43,8 @@ public class MsgWebSocketHandler extends TextWebSocketHandler {
 
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-		super.handleTextMessage(session, message);
+		System.out.println(">>>>>>>>>>>>> msg");
+		sendLogMassage();
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public class MsgWebSocketHandler extends TextWebSocketHandler {
 	}
 	
 	
-	public void sendLogMassage(String agency) throws IOException {
+	public void sendLogMassage() throws IOException {
 		Iterator<WebSocketSession> iterator = sessionList.iterator();
 		
 		
@@ -66,12 +67,13 @@ public class MsgWebSocketHandler extends TextWebSocketHandler {
 			
 			Pageable sort = PageRequest.of(0, 3, Sort.by("create_date").descending());
 			
-			List<KLog> logs = logRepository.findByAgencyNotRead(agency, sort);
-
+			List<Map<String, String>> logs = logRepository.findByReadyn("N", sort);
+			Long count = logRepository.countByReadyn("N");
 			
 			JSONObject obj = new JSONObject();
 			JSONArray arr = (JSONArray) CommonUtil.parseToJson(logs);
 			obj.put("logs", arr);
+			obj.put("count", count);
 			
 			TextMessage message = new TextMessage(obj.toString());
 			session.sendMessage(message);

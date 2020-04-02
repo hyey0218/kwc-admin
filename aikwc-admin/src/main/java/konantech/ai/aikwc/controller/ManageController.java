@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,11 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import konantech.ai.aikwc.entity.Agency;
-import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.Site;
+import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
+import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
 
 @Controller
 @RequestMapping("/manage")
@@ -29,8 +31,8 @@ public class ManageController {
 	@Resource
 	CommonService commonService;
 	
-	@Resource
-	CollectorService collectorService;
+	@Autowired
+	BasicCollectorServiceImpl collectorService;
 	
 	
 	@RequestMapping("")
@@ -52,13 +54,22 @@ public class ManageController {
 			List<Site> siteList = collectorService.getSiteListInAgency(agencyNo);
 			model.addAttribute("siteList", siteList);
 		}else if(menuNo.equals("3")) {
-			List<Collector> collectors = collectorService.getCollectorListInAgency(agencyNo);
+			List<BasicCollector> collectors = collectorService.getCollectorListInAgency(agencyNo);
 			model.addAttribute("collectorList",collectors);
 		}
 		
 		return "clt/manage"+menuNm;
 	}
-	
+	@RequestMapping(value ="/groupInAgency", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> groupInAgency(@RequestBody Group group) {
+		
+		List<Group> result = commonService.getGroupInAgency(group.getAgency());
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("result", result);
+		
+		return map;
+	}
 	@RequestMapping(value ="/siteInGroup", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String,Object> siteInGroup(@RequestBody Site site) {
@@ -71,9 +82,9 @@ public class ManageController {
 	}
 	@RequestMapping(value ="/collectorInSite", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> collectorInSite(@RequestBody Collector collector) {
+	public Map<String,Object> collectorInSite(@RequestBody BasicCollector collector) {
 		
-		List<Collector> result = collectorService.getCollectorListInSite(collector.getSite());
+		List<BasicCollector> result = collectorService.getCollectorListInSite(collector.getSite());
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", result);
 		
@@ -82,7 +93,7 @@ public class ManageController {
 	
 	@PostMapping("/collector/save")
 	public String saveCollector(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
-			@ModelAttribute Collector collector,
+			@ModelAttribute BasicCollector collector,
 			Model model) {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>Collector INSERT");
 		collectorService.saveCollector(collector);
@@ -125,9 +136,9 @@ public class ManageController {
 	
 	@RequestMapping(value ="/detail/info", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> siteInfo(@RequestBody Collector collector) {
+	public Map<String,Object> siteInfo(@RequestBody BasicCollector collector) {
 		
-		Collector result = collectorService.getCollectorInfo(collector.getPk());
+		BasicCollector result = collectorService.getCollectorInfo(collector.getPk());
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", result);
 		
@@ -135,12 +146,11 @@ public class ManageController {
 	}
 	@PostMapping("/detail/save")
 	public String saveCollectorDetail(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
-			@ModelAttribute Collector collector,
+			@ModelAttribute BasicCollector collector,
 			Model model) {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>detail INSERT");
 		collectorService.saveCollectorDetail(collector);
 		
 		return "redirect:/manage";
 	}
-	
 }

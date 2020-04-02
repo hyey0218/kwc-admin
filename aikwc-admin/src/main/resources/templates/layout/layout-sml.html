@@ -40,7 +40,7 @@
   </a>
 
   <!-- Logout Modal -->
-  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal fade" id="agencyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
       <div class="modal-header">
@@ -73,6 +73,125 @@
     </div>
     </div>
   </div>
+  <!-----------------------------------스케줄용 모달------------------------------------------->
+  <div th:if="${menuNo == '2'}" class="modal fade" id="scheduleModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel2" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="schduleTitle">스케줄 등록</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form name="schduleRegForm" id="schduleRegForm" th:action="@{/simulator/schedule/save}" method="POST">
+        	<div class="form-row form-group">
+				<div class="col">
+					<label>기관 선택</label>
+					<select class="form-control" name="agency" onchange="agencySelect(this)">
+						<option value="">선택</option>
+					  <option th:each="aObj:${agencyList}" th:value="${aObj.pk}" th:text="${aObj.name}+'('+${aObj.code}+')'"></option>
+					</select>
+				</div>
+			</div>
+        	<div class="form-row form-group">
+				<div class="col">
+					<label>수집 그룹명(코드)</label>
+					<select class="form-control" id="selectGroup" name="grp" onchange="groupSelect(this)">
+						<option value="">선택</option>
+					</select>
+				</div>
+				<div class="col">
+					<label for="selectSite">수집 사이트명</label>
+					<select class="form-control" id="selectSite" name="site" onchange="siteSelect(this)">
+					  <option value="">선택</option>
+					</select>
+				</div>
+				<div class="col">
+					<label for="selectCollector">수집원</label>
+					<select class="form-control" id="selectCollector" name="collector" >
+					  <option value="">선택</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-row form-group">
+				<div class="col">
+					<label>수집 범위 타입</label>
+					<select class="form-control" name="cType" onchange="changeType(this)">
+						<option value="">선택</option>
+						<option value="P">페이지</option>
+						<option value="Y">연도</option>
+					</select>
+				</div>
+				<div class="col-3">
+					<label for="selectStart">시작점</label>
+					<select class="form-control" id="selectStart" name="start" >
+					  <option value="">선택</option>
+					</select>
+				</div>
+				<div class="col-3">
+					<label for="selectEnd">종료점</label>
+					<select class="form-control" id="selectEnd" name="end">
+					  <option value="">선택</option>
+					</select>
+				</div>
+			</div>
+<!-- 			<div class="form-row form-group">
+				<div class="col">
+					<label>반복 주기</label>
+					<select class="form-control" name="rptType" onchange="rptType(this)">
+						<option value="">선택</option>
+						<option value="D">매일</option>
+						<option value="W">매주</option>
+						<option value="M">매달</option>
+					</select>
+				</div>
+				<div class="col">
+					<label for="month">매달</label>
+					<input type="text" class="form-control" name="month" value="*">
+				</div>
+				<div class="col">
+					<label for="week">매주</label>
+					<input type="text" class="form-control" name="week" value="*">
+				</div>
+			</div>
+			<div class="form-row form-group">
+				<div class="col">
+					<select class="form-control" id="selectHH" name="HH">
+					  <option value="">시간 선택</option>
+					  <th:block th:each="num: ${#numbers.sequence(0,23)}">
+					  	<option th:value="${#numbers.formatInteger(num,2)}" th:text="${#numbers.formatInteger(num,2)}">
+					  </th:block>
+					</select>
+				</div>
+				<div class="col">
+					<select class="form-control" id="selectmm" name="mm">
+					  <option value="">분</option>
+					  <option value="00">00</option>
+					  <option value="30">30</option>
+					</select>
+				</div>
+			</div> -->
+			<div class="form-row form-group">
+				<div class="col">
+					<label for="week">주기 설정 (cron)</label>
+					<input type="text" class="form-control" name="cycleCron" value="* * * * * *">
+					<small id="cronHelp" class="form-text text-muted">ex) "초 분 시 일 월 요일" => 매일 저녁 6시 : 0 0 18 * * ?</small>
+				</div>
+			</div>
+			<div class="form-group form-check">
+				<input type="checkbox" class="form-check-input" id="schUseyn" name="useyn" value="Y" checked>
+				<label class="form-check-label" for="schUseyn">사용 여부</label>
+			</div>
+		</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="formSubmit('schduleRegForm')" data-dismiss="modal">Save</button>
+      </div>
+    </div>
+    </div>
+  </div>
 
 <!------------------------------------------------------------------------------->
 
@@ -93,8 +212,13 @@
 
 <script th:inline="javascript">
     var _menuNo = Number([[${menuNo}]]);
+    var _agencyNo = [[${agencyNo}]];
+    $(document).ready(function(){
+    	$("#accordionSidebar > li:eq("+(2+_menuNo)+")").addClass("active");
+    });
 </script>
  <script th:src="@{/static/js/common.js}"></script>
- <script th:src="@{/static/js/simulator.js}"></script>
+ <script th:if="${menuNo == '1'}" th:src="@{/static/js/simulator.js}"></script>
+ <script th:if="${menuNo == '2'}" th:src="@{/static/js/schedule.js}"></script>
 </body>
 </html>

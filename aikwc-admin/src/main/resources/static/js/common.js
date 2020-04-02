@@ -6,22 +6,30 @@ $(document).ready(function(){
 //	sock.send({'agency':8});
 	
 	sock.onopen = function(){
-		console.log("open")
+		sock.send("");
 	}
 	
 	sock.onmessage = function(message) { 
 		let jObj = JSON.parse(message.data);
-		console.log(jObj);
 		
 		if(jObj.logs){
 			let logs = jObj.logs;
-			let $msgDiv = $("#logMsg").children().remove();
+			if(jObj.count > 0){
+				if(jObj.count > 3)
+					$("#lMsgCnt").text("3+");
+				else
+					$("#lMsgCnt").text(jObj.count);
+			}
+			$("#logMsg").children().remove();
 			$(logs).each(function(i,j){
-				topMessage($msgDiv, j);
+				topMessage(j);
 			})
 		}
 	}
-	
+	$("#logMsgBtn").on('click',function(){
+		getJSONAjaxMethod("/comm/logReadAll", "POST", {});
+		$("#lMsgCnt").text("");
+	});
 })
 // form contents --> json
 $.fn.serializeObject = function() {
@@ -113,14 +121,78 @@ function leftMenuFunc(){
 	}
 }
 
-function topMessage($msgDiv, j){
-	let $anch = $("<a>",{'class':'dropdown-item d-flex align-items-center', 'href':'javascript:void(0)' } )
+function topMessage(j){
+	let $msgDiv = $("#logMsg");
+	let $anch = $("<a>",{'class':'dropdown-item d-flex align-items-center', 'href':'/simulator/log' } )
 	.append( $("<div>", {'class':'mr-3'}).append($("<div>",{'class':'icon-circle bg-primary'} )
 			.append($("<i>",{'class':'fas fa-file-alt text-white' })  )  )  )
 	.append( $("<div>").append(
-			$("<div>",{'class':'small text-gray-600'} ).text('time')  ).append(
+			$("<div>",{'class':'small text-gray-600'} ).text(j.create_date)  ).append(
 			$("<span>", {'class':'font-weight-bold'} ).text(j.comment)
 			) );
 
 	$msgDiv.append($anch);
+}
+
+function agencySelect(obj){
+	if($(obj).val() == "")
+		return false;
+	
+	let requestUrl = "/manage/groupInAgency";
+	let jObj = {}
+	jObj.agency = $(obj).val();
+	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj).result;
+	$("#selectGroup > option:gt(0)").remove();
+	if(retJson){
+		let $elementSelect = $("#selectGroup");
+		$(retJson).each(function(i,j){
+			$elementSelect.append($("<option>", {value: j.pk} ).text(j.name) );
+		})
+	}
+}
+
+
+function groupSelect(obj){
+	if($(obj).val() == "")
+		return false;
+	
+	let requestUrl = "/manage/siteInGroup";
+	let jObj = {}
+	jObj.grp = $(obj).val();
+	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj).result;
+	$("#selectSite > option:gt(0)").remove();
+	if(retJson){
+		let $elementSelect = $("#selectSite");
+		$(retJson).each(function(i,j){
+			$elementSelect.append($("<option>", {value: j.pk} ).text(j.name) );
+		})
+	}
+}
+
+
+function siteSelect(obj){
+	if($(obj).val() == "")
+		return false;
+	
+	let requestUrl = "/manage/collectorInSite";
+	let jObj = {};
+	jObj.site = $(obj).val();
+	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj).result;
+	$("#selectCollector > option:gt(0)").remove();
+	if(retJson){
+		let $elementSelect = $("#selectCollector");
+		$(retJson).each(function(i,j){
+			console.log(j)
+			$elementSelect.append($("<option>", {value: j.pk} ).text(j.name) );
+		})
+	}
+}
+
+
+function taskProgress(curTask){
+	let tasks = 50;
+	let perTask = ((tasks-curTask)/tasks) * 100;
+	$("#taskProg").css("width" , perTask+"%");
+	$("#availableTask").text(tasks-curTask);
+	$("#availableTask").val(tasks-curTask);
 }

@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,24 +26,36 @@ import konantech.ai.aikwc.common.config.AsyncConfig;
 import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.entity.Agency;
 import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.KLog;
+import konantech.ai.aikwc.entity.KTask;
+import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.CrawlService;
+import konantech.ai.aikwc.service.ScheduleService;
+import konantech.ai.aikwc.service.TaskService;
+import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
 
 @Controller
 @RequestMapping("simulator")
 public class SimulatorController {
-	@Resource
+	@Autowired
 	CommonService commonService;
-	
-	@Resource
-	CollectorService collectorService;
 	@Autowired
 	CrawlService crawlService;
 	@Autowired
 	AsyncConfig asyncConfig;
 	@Autowired
 	StatusWebSocketHandler statusHandler;
+	
+	
+	@Autowired
+	BasicCollectorServiceImpl basicCollectorService;
+	
+	@Autowired
+	ScheduleService scheduleService;
+	@Autowired
+	TaskService taskService;
 	
 	@RequestMapping("/list")
 	public String list(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
@@ -63,14 +76,16 @@ public class SimulatorController {
 			,@RequestParam(name = "menuNo", required = false, defaultValue = "1") String menuNo
 			,Model model) {
 		
-		Map map = commonService.commInfo(agencyNo);
-		Agency selAgency = (Agency) map.get("selAgency");
-		model.addAttribute("selAgency", selAgency);
-		model.addAttribute("agencyList", map.get("agencyList"));
-		model.addAttribute("groupList", map.get("groupList"));
-		model.addAttribute("agencyNo", selAgency.getPk());
+		List<Agency> agencyList = commonService.getAgencyAll();
+		model.addAttribute("agencyList", agencyList);
 		model.addAttribute("menuNo", "2");
 		
+		List<Map<String, String>> list = taskService.getAllTaskWithCollectorName();
+		model.addAttribute("taskList", list);
+		
+		model.addAttribute("taskCnt", asyncConfig.getTaskCount() + scheduleService.getTaskCount());
+		model.addAttribute("taskRsvCnt", scheduleService.getSchedulingTaskCount());
+		model.addAttribute("taskRunCnt", scheduleService.getTaskCount());
 		
 		return "sml/runSchedule";
 	}
@@ -79,15 +94,11 @@ public class SimulatorController {
 			,@RequestParam(name = "menuNo", required = false, defaultValue = "1") String menuNo
 			,Model model) {
 		
-		Map map = commonService.commInfo(agencyNo);
-		Agency selAgency = (Agency) map.get("selAgency");
-		model.addAttribute("selAgency", selAgency);
-		model.addAttribute("agencyList", map.get("agencyList"));
-		model.addAttribute("groupList", map.get("groupList"));
-		model.addAttribute("agencyNo", selAgency.getPk());
 		model.addAttribute("menuNo", "3");
 		
-		
+		List<KLog> logList = new ArrayList<KLog>();
+		logList = commonService.getAllLog();
+		model.addAttribute("logList", logList);
 		return "sml/viewLog";
 	}
 	
@@ -97,45 +108,61 @@ public class SimulatorController {
 	@ResponseBody
 	public Map<String,Object> collectorList(@RequestBody Map<String,String> params) {
 		
-		String site = params.get("site");
-		List<Collector> result = new ArrayList<Collector>();
-		if(site != null && !site.equals("")) {
-			result = collectorService.getCollectorListInSiteInUse(site);
+		String agency = params.get("agencyNo");
+		List<BasicCollector> result = new ArrayList<BasicCollector>();
+		if(agency != null && !agency.equals("")) {
+			result = basicCollectorService.getCollectorListInAgency(Integer.parseInt(agency));
 		}else
-			result = collectorService.getCollectorList();
+			result = basicCollectorService.getCollectorList();
 			
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", result);
-		map.put("taskCnt", asyncConfig.getTaskCount());
+		map.put("taskCnt", asyncConfig.getTaskCount() + scheduleService.getTaskCount());
 		
 		return map;
 	}
 	
 	@RequestMapping("/crawl")
 	@ResponseBody
-	public void getCrawl(@RequestBody Collector collector) throws Exception {
+	public void getCrawl(@RequestBody Map<String,String> params) throws Exception {
 		
-		Collector selectedCollector = collectorService.getCollectorInfo(collector.getPk());
-		selectedCollector.setStartPage(collector.getStartPage());
-		selectedCollector.setEndPage(collector.getEndPage());
+		int pk = Integer.parseInt(params.get("pk"));
+		Collector selectedCollector = basicCollectorService.getCollectorInfo(pk);
 		
-		Agency Agency = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
-		String agencyName = Agency.getName();
-		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
-		selectedCollector.setChannel("기관");
+		Class collectorClass = Class.forName(selectedCollector.getPackageClassName());
 		
 		//1. update Running status / send websocket message
-		collectorService.updateStatus(collector.getPk(), "R");
+		basicCollectorService.updateStatus(pk, "R");
 		
-		CompletableFuture cf = crawlService.webCrawl(selectedCollector);
-		statusHandler.sendTaskCnt(asyncConfig.getTaskCount());
+		CompletableFuture cf = crawlService.webCrawlThread(collectorClass, pk, params.get("startPage"), params.get("endPage"));
+		statusHandler.sendTaskCnt(asyncConfig.getTaskCount()+scheduleService.getTaskCount());
 		
 		CompletableFuture<Void> after = cf.handle((res,ex) -> {
 			statusHandler.sendTaskCnt(asyncConfig.getAfterTaskCount());
 			return null;
 		});
 		
-		
 	}
+	
+	@RequestMapping(value="/schedule/save", method = RequestMethod.POST)
+	public String saveSchdule(@ModelAttribute KTask task) throws Exception {
+//		KTask task = new KTask();
+//		List<KTask> list = taskService.getTaskByCollector(task.getCollector());
+		Long count = taskService.getTaskByCollectorCount(task.getCollector());
+		String taskNo = "C"+task.getCollector()+"-"+(count+1);
+		task.setTaskNo(taskNo); // C8-1
+		scheduleService.registerSchedule(task);
+		taskService.saveTask(task);
+		return "redirect:/simulator/schedule";
+	}
+	
+	@RequestMapping(value="/schedule/delete", method = RequestMethod.POST)
+	public String deleteSchdule(@ModelAttribute(name = "pk") String pk) throws Exception {
+		KTask task = taskService.getTaskByPk(pk);
+		scheduleService.stopSchedule(task);
+		taskService.deleteTask(task);
+		return "redirect:/simulator/schedule";
+	}
+	
 }
 

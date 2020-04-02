@@ -50,6 +50,10 @@ public class Crawl {
 	String pseudo;
 	@Column
 	String wtimeStr;
+	@Column
+	String collector;
+	@Column
+	String urlHash;
 	
 	public Crawl() {}
 	@Builder
