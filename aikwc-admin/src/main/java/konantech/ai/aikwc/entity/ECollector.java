@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,17 +16,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Table;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 
 @Getter
 @Setter
-//@MappedSuperclass
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Table(name="v_collector")
-@Entity
-public class Collector {
+@MappedSuperclass
+//@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+public abstract class ECollector {
 	
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
@@ -54,7 +54,12 @@ public class Collector {
 	@Column
 	String site;
 	
-	public String getPackageClassName() {
-		return "konantech.ai.aikwc.entity.collectors" + getClassName();
-	}
+	
+	public abstract String getPackageClassName();
+
+	@ManyToOne(optional = false)//fetch = FetchType.LAZY
+	@JoinColumn(name = "site", referencedColumnName = "pk",insertable = false, updatable = false)
+	Site toSite;
+	
 }
+

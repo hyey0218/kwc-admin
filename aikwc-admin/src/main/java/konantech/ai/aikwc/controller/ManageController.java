@@ -18,12 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import konantech.ai.aikwc.entity.Agency;
+import konantech.ai.aikwc.entity.collectors.Collector;
 import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.Site;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
+import konantech.ai.aikwc.repository.mapping.CollectorMapping;
 import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
-import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
 
 @Controller
 @RequestMapping("/manage")
@@ -31,8 +32,8 @@ public class ManageController {
 	@Resource
 	CommonService commonService;
 	
-	@Autowired
-	BasicCollectorServiceImpl collectorService;
+	@Resource(name = "collectorService")
+	CollectorService<Collector> collectorService;
 	
 	
 	@RequestMapping("")
@@ -54,7 +55,7 @@ public class ManageController {
 			List<Site> siteList = collectorService.getSiteListInAgency(agencyNo);
 			model.addAttribute("siteList", siteList);
 		}else if(menuNo.equals("3")) {
-			List<BasicCollector> collectors = collectorService.getCollectorListInAgency(agencyNo);
+			List<CollectorMapping> collectors = collectorService.getCollectorListInAgency(agencyNo);
 			model.addAttribute("collectorList",collectors);
 		}
 		
@@ -82,9 +83,9 @@ public class ManageController {
 	}
 	@RequestMapping(value ="/collectorInSite", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> collectorInSite(@RequestBody BasicCollector collector) {
+	public Map<String,Object> collectorInSite(@RequestBody Collector collector) {
 		
-		List<BasicCollector> result = collectorService.getCollectorListInSite(collector.getSite());
+		List<Collector> result = collectorService.getCollectorListInSite(collector.getSite());
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", result);
 		
@@ -93,7 +94,7 @@ public class ManageController {
 	
 	@PostMapping("/collector/save")
 	public String saveCollector(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
-			@ModelAttribute BasicCollector collector,
+			@ModelAttribute Collector collector,
 			Model model) {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>Collector INSERT");
 		collectorService.saveCollector(collector);
@@ -138,7 +139,7 @@ public class ManageController {
 	@ResponseBody
 	public Map<String,Object> siteInfo(@RequestBody BasicCollector collector) {
 		
-		BasicCollector result = collectorService.getCollectorInfo(collector.getPk());
+		Collector result = collectorService.getCollectorInfo(collector.getPk());
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", result);
 		
@@ -146,7 +147,7 @@ public class ManageController {
 	}
 	@PostMapping("/detail/save")
 	public String saveCollectorDetail(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
-			@ModelAttribute BasicCollector collector,
+			@ModelAttribute Collector collector,
 			Model model) {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>detail INSERT");
 		collectorService.saveCollectorDetail(collector);

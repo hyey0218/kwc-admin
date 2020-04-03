@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.ECollector;
 import konantech.ai.aikwc.entity.Site;
 import lombok.Builder;
 import lombok.Data;
@@ -27,7 +27,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @AttributeOverride(name = "pk", column = @Column(name = "pk"))
-public class BasicCollector extends Collector {
+public class BasicCollector extends ECollector {
 	
 	@Column
 	String startUrl;
@@ -58,7 +58,6 @@ public class BasicCollector extends Collector {
 
 	
 	public BasicCollector() {}
-
 	@Builder
 	public BasicCollector(String startUrl, String pageUrl, String startPage, String endPage, String titleLink,
 			String title, String content, String writer, String wdatePattern, String writeDate, String contId,
@@ -78,8 +77,8 @@ public class BasicCollector extends Collector {
 		this.channel = channel;
 	}
 	
-	@ManyToOne(optional = false)//fetch = FetchType.LAZY
-	@JoinColumn(name = "site", referencedColumnName = "pk",insertable = false, updatable = false)
-	Site toSite;
-	
+
+	public String getPackageClassName() {
+		return "konantech.ai.aikwc.entity.collectors." + getClassName();
+	}
 }

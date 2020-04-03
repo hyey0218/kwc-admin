@@ -11,7 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import konantech.ai.aikwc.common.utils.CommonUtil;
-import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.collectors.Collector;
 import konantech.ai.aikwc.entity.Crawl;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.repository.CrawlRepository;

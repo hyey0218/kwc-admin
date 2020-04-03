@@ -25,16 +25,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import konantech.ai.aikwc.common.config.AsyncConfig;
 import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.entity.Agency;
-import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.collectors.Collector;
 import konantech.ai.aikwc.entity.KLog;
 import konantech.ai.aikwc.entity.KTask;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
+import konantech.ai.aikwc.repository.mapping.CollectorMapping;
 import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.CrawlService;
 import konantech.ai.aikwc.service.ScheduleService;
 import konantech.ai.aikwc.service.TaskService;
-import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
 
 @Controller
 @RequestMapping("simulator")
@@ -48,9 +48,10 @@ public class SimulatorController {
 	@Autowired
 	StatusWebSocketHandler statusHandler;
 	
-	
-	@Autowired
-	BasicCollectorServiceImpl basicCollectorService;
+	@Resource(name = "collectorService")
+	CollectorService<Collector> collectorService;
+	@Resource(name = "BasicCollectorService")
+	CollectorService<BasicCollector> basicCollectorService;
 	
 	@Autowired
 	ScheduleService scheduleService;
@@ -109,11 +110,11 @@ public class SimulatorController {
 	public Map<String,Object> collectorList(@RequestBody Map<String,String> params) {
 		
 		String agency = params.get("agencyNo");
-		List<BasicCollector> result = new ArrayList<BasicCollector>();
+		List<CollectorMapping> result = new ArrayList<CollectorMapping>();
 		if(agency != null && !agency.equals("")) {
-			result = basicCollectorService.getCollectorListInAgency(Integer.parseInt(agency));
+			result = collectorService.getCollectorListInAgency(Integer.parseInt(agency));
 		}else
-			result = basicCollectorService.getCollectorList();
+			result = null;
 			
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", result);
@@ -127,7 +128,7 @@ public class SimulatorController {
 	public void getCrawl(@RequestBody Map<String,String> params) throws Exception {
 		
 		int pk = Integer.parseInt(params.get("pk"));
-		Collector selectedCollector = basicCollectorService.getCollectorInfo(pk);
+		Collector selectedCollector = collectorService.getCollectorInfo(pk);
 		
 		Class collectorClass = Class.forName(selectedCollector.getPackageClassName());
 		

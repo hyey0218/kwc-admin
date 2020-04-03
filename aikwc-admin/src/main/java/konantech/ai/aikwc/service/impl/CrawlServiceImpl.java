@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -25,10 +27,9 @@ import org.springframework.stereotype.Service;
 import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.common.utils.CommonUtil;
 import konantech.ai.aikwc.entity.Agency;
-import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.collectors.Collector;
 import konantech.ai.aikwc.entity.Crawl;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
-import konantech.ai.aikwc.repository.BasicCollectorRepository;
 import konantech.ai.aikwc.repository.CrawlRepository;
 import konantech.ai.aikwc.selenium.BasicCollectorKWC;
 import konantech.ai.aikwc.selenium.KWCSelenium;
@@ -43,10 +44,10 @@ public class CrawlServiceImpl implements CrawlService {
 	@Value("${chrome.web.driver.path}")
 	String driverPath;
 	
-	@Autowired
-	CollectorServiceImpl collectorService;
-	@Autowired
-	BasicCollectorServiceImpl basicCollectorService;
+	@Resource(name = "collectorService")
+	CollectorService<Collector> collectorService;
+	@Resource(name = "BasicCollectorService")
+	CollectorService<BasicCollector> basicCollectorService;
 	
 	@Autowired
 	CommonService commonService;

@@ -20,13 +20,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.ECollector;
 import konantech.ai.aikwc.entity.KLog;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.repository.KLogRepository;
 import konantech.ai.aikwc.service.CommonService;
 
-public abstract class KWCSelenium<T extends Collector>{
+public abstract class KWCSelenium<T extends ECollector>{
 	
 	private String driverPath;
 //	private ChromeDriver webDriver;

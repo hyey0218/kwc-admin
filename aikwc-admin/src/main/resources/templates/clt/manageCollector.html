@@ -75,10 +75,10 @@
                   </thead>
                   <tbody>
                     <tr th:each="cObj:${collectorList}">
-				      <td th:text="${cObj.toSite.group.code}">out</td>
-				      <td th:text="${cObj.toSite.group.name}">산하기관</td>
-				      <td th:text="${cObj.toSite.code}">08</td>
-				      <td th:text="${cObj.toSite.name}">인천테크노파크</td>
+				      <td th:text="${cObj.grp}">out</td>
+				      <td th:text="${cObj.grpname}">산하기관</td>
+				      <td th:text="${cObj.site}">08</td>
+				      <td th:text="${cObj.sitename}">인천테크노파크</td>
 				      <td th:text="${cObj.code}">001</td>
 				      <td th:text="${cObj.name}">지원사업</td>
 				      <td th:text="${cObj.useyn}">N</td>
@@ -95,3 +95,7 @@
 
 
 </html>
+<script th:inline="javascript">
+console.log([[${collectorList}]])
+
+</script>
