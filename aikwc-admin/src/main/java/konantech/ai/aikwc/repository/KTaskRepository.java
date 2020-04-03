@@ -18,7 +18,7 @@ public interface KTaskRepository extends JpaRepository<KTask, Integer> {
 	
 	public List<KTask> findByUseyn(@Param("useyn") String useyn);
 	
-	@Query(value="select t.*, c.name from kwc_task t, kwc_collector c"
+	@Query(value="select t.*, c.name from kwc_task t, v_collector c"
 			+ " where t.collector = c.pk" 
 			, nativeQuery = true)
 	public List<Map<String, String>> findByUseynWithCollName();

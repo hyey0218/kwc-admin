@@ -5,8 +5,6 @@ import java.util.concurrent.Future;
 
 import org.springframework.scheduling.annotation.Async;
 
-import konantech.ai.aikwc.entity.Collector;
-import konantech.ai.aikwc.entity.collectors.BasicCollector;
 
 public interface CrawlService {
 

@@ -15,7 +15,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import konantech.ai.aikwc.common.utils.CommonUtil;
-import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.collectors.Collector;
 import konantech.ai.aikwc.repository.CollectorRepository;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;

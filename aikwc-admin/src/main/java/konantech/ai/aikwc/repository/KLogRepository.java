@@ -23,6 +23,7 @@ public interface KLogRepository extends JpaRepository<KLog, String> {
 			+ ", readyn, delyn from kwc_log  "
 			+ "where `readyn` = :readyn ", nativeQuery = true)
 	public List<Map<String, String>> findByReadyn(@Param("readyn") String readyn, Pageable sort);
+	
 	public List<KLog> findByAgencyOrderByCreateDateDesc(@Param("agency") String agency);
 	public List<KLog> findAllByOrderByCreateDateDesc();
 	

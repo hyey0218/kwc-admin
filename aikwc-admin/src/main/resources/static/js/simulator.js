@@ -47,9 +47,9 @@ function simulatorList(){
 			$tr.append(
 				$("<th>").text(i+1))
 				.append(
-				$("<td>").text(j.toSite.group.name))
+				$("<td>").text(j.grpname))
 				.append(
-				$("<td>").text(j.toSite.name))
+				$("<td>").text(j.sitename))
 				.append(
 				$("<td>").text(j.code))
 				.append(

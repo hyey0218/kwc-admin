@@ -4,15 +4,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
-import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.collectors.Collector;
 import konantech.ai.aikwc.entity.KTask;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
+import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CrawlService;
 import konantech.ai.aikwc.service.ScheduleService;
 
@@ -25,8 +28,8 @@ public class ScheduleServiceImpl implements ScheduleService{
 	@Autowired
 	CrawlService crawlService;
 	
-	@Autowired
-	CollectorServiceImpl collectorService;
+	@Resource(name = "collectorService")
+	CollectorService<Collector> collectorService;
 	
 	
 	private Map<String, ScheduledFuture<?>> scheduleMap = new ConcurrentHashMap<>();
