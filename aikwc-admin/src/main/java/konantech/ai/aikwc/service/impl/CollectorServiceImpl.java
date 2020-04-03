@@ -29,7 +29,7 @@ import konantech.ai.aikwc.service.CollectorService;
 @Service("collectorService")
 public class CollectorServiceImpl extends CollectorService<Collector> {
 	@Autowired
-	CollectorRepository<Collector> collectorRepository;
+	CollectorRepository collectorRepository;
 	
 	@Override
 	public Collector saveCollector(Collector collector){
@@ -41,7 +41,7 @@ public class CollectorServiceImpl extends CollectorService<Collector> {
 	}
 	@Override
 	public Collector getCollectorInfo(int pk) {
-		return (Collector)collectorRepository.findById(pk).get();
+		return collectorRepository.findById(pk).get();
 	}
 	@Override
 	public List<Collector> getAllCollectorList() {

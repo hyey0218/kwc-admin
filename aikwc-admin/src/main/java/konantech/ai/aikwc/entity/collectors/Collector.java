@@ -21,7 +21,7 @@ public class Collector extends ECollector{
 
 	@Override
 	public String getPackageClassName() {
-		return "konantech.ai.aikwc.entity.collectors" + getClassName();
+		return "konantech.ai.aikwc.entity.collectors." + getClassName();
 	}
 	
 }

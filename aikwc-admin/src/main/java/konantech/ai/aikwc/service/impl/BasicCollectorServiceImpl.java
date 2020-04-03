@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
+import konantech.ai.aikwc.repository.BasicCollectorRepository;
 import konantech.ai.aikwc.repository.CollectorRepository;
 import konantech.ai.aikwc.service.CollectorService;
 
@@ -14,7 +15,7 @@ import konantech.ai.aikwc.service.CollectorService;
 public class BasicCollectorServiceImpl extends CollectorService<BasicCollector> {
 
 	@Autowired
-	private CollectorRepository<BasicCollector> basicCollectorRepository;
+	private BasicCollectorRepository basicCollectorRepository;
 
 	@Override
 	public BasicCollector saveCollector(BasicCollector collector) {

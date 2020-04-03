@@ -27,7 +27,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @AttributeOverride(name = "pk", column = @Column(name = "pk"))
-public class BasicCollector extends Collector {
+public class BasicCollector extends ECollector {
 	
 	@Column
 	String startUrl;
@@ -79,6 +79,6 @@ public class BasicCollector extends Collector {
 	
 
 	public String getPackageClassName() {
-		return "konantech.ai.aikwc.entity.collectors" + getClassName();
+		return "konantech.ai.aikwc.entity.collectors." + getClassName();
 	}
 }

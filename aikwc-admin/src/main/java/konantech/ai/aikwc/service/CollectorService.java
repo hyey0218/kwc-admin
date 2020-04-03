@@ -21,7 +21,7 @@ import konantech.ai.aikwc.repository.SiteRepository;
 import konantech.ai.aikwc.repository.mapping.CollectorMapping;
 
 
-public abstract class CollectorService<T extends ECollector> {
+public abstract class CollectorService<T> {
 	@Autowired
 	private GroupRepository groupRepository;
 	@Autowired
@@ -29,7 +29,7 @@ public abstract class CollectorService<T extends ECollector> {
 	@Autowired
 	private AgencyRepository agencyRepository;
 	@Autowired
-	private CollectorRepository<konantech.ai.aikwc.entity.collectors.Collector> collectorRepository;
+	private CollectorRepository collectorRepository;
 	
 	@Autowired
 	StatusWebSocketHandler statusHandler;
