@@ -23,14 +23,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import konantech.ai.aikwc.common.utils.CommonUtil;
 import konantech.ai.aikwc.entity.Agency;
-
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.Site;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
-import konantech.ai.aikwc.entity.collectors.Collector;
 import konantech.ai.aikwc.repository.mapping.CollectorMapping;
-import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.FileService;
 import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
