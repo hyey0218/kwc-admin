@@ -11,7 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import konantech.ai.aikwc.common.utils.CommonUtil;
-import konantech.ai.aikwc.entity.collectors.Collector;
+import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.Crawl;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.repository.CrawlRepository;
@@ -26,8 +26,8 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 	private By writeDate;
 	private By content;
 
-	public BasicCollectorKWC(String driverPath, BasicCollector c) {
-		super(driverPath, c);
+	public BasicCollectorKWC(String driverPath, Collector collector, BasicCollector bc) {
+		super(driverPath, collector, bc);
 	}
 
 	@Override
@@ -47,10 +47,7 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 		this.content = By.xpath(c.getContent());
 		this.writer = By.xpath(c.getWriter());
 		this.writeDate = By.xpath(c.getWriteDate());
-		this.log.setAgency(c.getToSite().getGroup().getAgency());
-		
-		
-		c.setEndPage("");
+		this.log.setAgency(collector.getToSite().getGroup().getAgency());
 		openBrowser();
 	}
 
@@ -59,11 +56,12 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 	}
 
 	@Override
-	public int work(JpaRepository repository) throws Exception {
+	public int work(CrawlRepository repository) throws Exception {
 		int startPage = Integer.parseInt(c.getStartPage());
 		int endPage = Integer.parseInt(c.getEndPage());
 		boolean isTimePattern = StringUtils.containsAny(c.getWdatePattern(), "Hms");
 		boolean idIsXpath = StringUtils.startsWith(c.getContId(), "//");
+		c.setEndPage("");
 		try {
 			for(int page =startPage ; page <= endPage; page++) {
 				webDriver.get(startUrl+page);
@@ -78,9 +76,9 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 					Crawl obj = new Crawl();
 					
 					//사이트내용
-					obj.setChannel(c.getChannel());
-					obj.setSiteName(c.getToSite().getGroup().getAgencyName());
-					obj.setBoardName(c.getToSite().getName()+"/"+c.getName());
+					obj.setChannel(collector.getChannel());
+					obj.setSiteName(collector.getToSite().getGroup().getAgencyName());
+					obj.setBoardName(collector.getToSite().getName()+"/"+collector.getName());
 					obj.setUrl(webDriver.getCurrentUrl());
 					obj.setCrawledTime(LocalDateTime.now());
 					if(idIsXpath)

@@ -43,6 +43,25 @@
                     <input type="text" class="form-control" id="name" name="name" placeholder="수집원명" required>
                   </div>
                 </div>
+                
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <input type="text" class="form-control" id="className" name="className" placeholder="수집원 클래스명" required>
+<!--                     <div class="text"><a class="small" href="login.html">Already have an account? Login!</a></div> -->
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" class="form-control" id="viewName" name="viewName" placeholder="수집원 페이지 경로" required>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <input type="text" class="form-control" id="ctrtStart" name="ctrtStartStr" placeholder="계약시작일자" required>
+<!--                     <div class="text"><a class="small" href="login.html">Already have an account? Login!</a></div> -->
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" class="form-control" id="ctrtEnd" name="ctrtEndStr" placeholder="계약종료일자" required>
+                  </div>
+                </div>
                 <a href="javascript:formSubmit('collectorForm')" class="btn btn-primary btn-user btn-block">
                   Register Collector
                 </a>
@@ -82,7 +101,10 @@
 				      <td th:text="${cObj.code}">001</td>
 				      <td th:text="${cObj.name}">지원사업</td>
 				      <td th:text="${cObj.useyn}">N</td>
-				      <td><a><i class="fas fa-edit"></i></a> &nbsp; <a><i class="fas fa-trash"></i></a></td>
+				      <td>
+				      	<a href="javascript:void(0)" th:onclick="getDetailJson([[${cObj.pk}]])">
+				      	<i class="fas fa-edit"></i>    </a>
+				      		&nbsp; <a><i class="fas fa-trash"></i></a></td>
 				    </tr>
                 </tbody>
                 </table>
@@ -96,6 +118,5 @@
 
 </html>
 <script th:inline="javascript">
-console.log([[${collectorList}]])
 
 </script>

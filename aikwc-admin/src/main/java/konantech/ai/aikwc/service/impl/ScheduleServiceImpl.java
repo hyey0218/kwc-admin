@@ -12,7 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
-import konantech.ai.aikwc.entity.collectors.Collector;
+import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.KTask;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.service.CollectorService;
@@ -28,8 +28,8 @@ public class ScheduleServiceImpl implements ScheduleService{
 	@Autowired
 	CrawlService crawlService;
 	
-	@Resource(name = "collectorService")
-	CollectorService<Collector> collectorService;
+	@Resource(name = "BasicCollectorService")
+	BasicCollectorServiceImpl collectorService;
 	
 	
 	private Map<String, ScheduledFuture<?>> scheduleMap = new ConcurrentHashMap<>();
@@ -39,9 +39,7 @@ public class ScheduleServiceImpl implements ScheduleService{
 			System.out.println(">>>>>>>>>>>>>>>>>>>>> schdule register :" + getTaskCount() +"/"+ getUsableTaskCount());
 			try {
 				int pk = Integer.parseInt(task.getCollector());
-				Collector collector = collectorService.getCollectorInfo(pk);
-				Class collectorClass = Class.forName(collector.getPackageClassName());
-				crawlService.webCrawlDefault(collectorClass, collector.getPk(), task.getStart(), task.getEnd());
+				crawlService.webCrawlDefault(pk, task.getStart(), task.getEnd());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

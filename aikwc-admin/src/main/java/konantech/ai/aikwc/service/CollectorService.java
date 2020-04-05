@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.entity.Agency;
-import konantech.ai.aikwc.entity.ECollector;
+import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.collectors.*;
 import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.Site;
@@ -19,6 +21,8 @@ import konantech.ai.aikwc.repository.CollectorRepository;
 import konantech.ai.aikwc.repository.GroupRepository;
 import konantech.ai.aikwc.repository.SiteRepository;
 import konantech.ai.aikwc.repository.mapping.CollectorMapping;
+import konantech.ai.aikwc.selenium.BasicCollectorKWC;
+import konantech.ai.aikwc.selenium.KWCSelenium;
 
 
 public abstract class CollectorService<T> {
@@ -30,25 +34,36 @@ public abstract class CollectorService<T> {
 	private AgencyRepository agencyRepository;
 	@Autowired
 	private CollectorRepository collectorRepository;
-	
 	@Autowired
 	StatusWebSocketHandler statusHandler;
+	@Autowired
+	EntityManager em;
 	
-	
-	public List<konantech.ai.aikwc.entity.collectors.Collector> getCollectorList(){
-		return collectorRepository.findAllWithJoin();
+	public Collector getCollector(int pk) {
+		return collectorRepository.findById(pk).get();
 	}
-	public List<konantech.ai.aikwc.entity.collectors.Collector> getCollectorListInSiteInUse(String site){
+	public Collector updateDtype(int pk, String type) {
+		collectorRepository.updateDtype(pk, type);
+		return collectorRepository.findById(pk).get();
+	}
+	public List<Collector> getCollectorListInSiteInUse(String site){
 		return collectorRepository.findAllInSite(site);
 	}
-	public List<konantech.ai.aikwc.entity.collectors.Collector> getCollectorListInSite(String site){
+	public List<Collector> getCollectorListInSite(String site){
 		return collectorRepository.findBySite(site);
 	}
 	public List<CollectorMapping> getCollectorListInAgency(int agency){
 		return collectorRepository.findInAgency(agency);
+//		String jpql = "select pk,className,viewName,code,name,ctrtStart,ctrtEnd,useyn,status,dtype,site,dtype,param1,param2 "
+//				+ "from Collector c where c.site in ("
+//				+ "select s.pk from Site s where s.grp in ( "
+//				+ "select g.pk from Group g where g.agency = "+agency+"))";
+	}
+	public List<CollectorMapping> getCollectorList(){
+		return collectorRepository.findAllList();
 	}
 	public void updateStatus(int pk, String status) {
-		Optional<konantech.ai.aikwc.entity.collectors.Collector> op = collectorRepository.findById(pk);
+		Optional<Collector> op = collectorRepository.findById(pk);
 		op.ifPresent(newer -> {
 			newer.setStatus(status);
 			collectorRepository.saveAndFlush(newer);
@@ -86,13 +101,16 @@ public abstract class CollectorService<T> {
 	public Site saveSite(Site site) {
 		return siteRepository.save(site);
 	}
+	public void saveCollector(Collector collector) {
+		collectorRepository.save(collector);
+	}
 	
-	/**
-	 * Collector 관련 공통 메소드
-	 */
-	public abstract T saveCollector(T collector);
-	public abstract void saveCollectorDetail(T collector);
-	public abstract T getCollectorInfo(int pk);
+	//////////////////////////////////////////
+	public abstract void saveCollectorDetail(int pk, T collector);
+	
+	public abstract T getCollectorDetailInfo(int pk);
+	
 	public abstract List<T> getAllCollectorList();
 	
+	public abstract int webCrawl(Collector collector, String start, String end);
 }

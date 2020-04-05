@@ -20,25 +20,28 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import konantech.ai.aikwc.entity.ECollector;
+import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.KLog;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
+import konantech.ai.aikwc.repository.CrawlRepository;
 import konantech.ai.aikwc.repository.KLogRepository;
 import konantech.ai.aikwc.service.CommonService;
 
-public abstract class KWCSelenium<T extends ECollector>{
+public abstract class KWCSelenium<T>{
 	
 	private String driverPath;
 //	private ChromeDriver webDriver;
 	protected WebDriver webDriver;
+	protected Collector collector;
 	protected T c;
 	
 	public KLog log;
 	
-	public KWCSelenium(String driverPath, T collector) {
+	public KWCSelenium(String driverPath, Collector collector, T c) {
 		this.driverPath = driverPath;
 		this.log = new KLog();
-		this.c = collector;
+		this.collector = collector;
+		this.c = c;
 	}
 	
 	public void openBrowser() throws Exception{
@@ -67,7 +70,7 @@ public abstract class KWCSelenium<T extends ECollector>{
 	 * @throws Exception
 	 */
 	public abstract void prework() throws Exception;
-	public abstract int work(JpaRepository repository) throws Exception;
+	public abstract int work(CrawlRepository repository) throws Exception;
 	public abstract void afterwork() throws Exception;
 	
 	/**
@@ -75,7 +78,7 @@ public abstract class KWCSelenium<T extends ECollector>{
 	 * @param collector
 	 * @param repository
 	 */
-	public int crawlWeb(JpaRepository repository) {
+	public int crawlWeb(CrawlRepository repository) {
 		int ret = 1;
 		try {
 			prework();

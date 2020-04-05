@@ -1,15 +1,23 @@
 package konantech.ai.aikwc.common.utils;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -78,6 +86,49 @@ public class CommonUtil {
 		MultiValueMap<String, String> map = uriComponentsBuilder.build().getQueryParams();
 		return StringUtils.defaultIfEmpty(map.getFirst(paramName), "");
 	}
-	
-	
+
+	public static Map stringToJsonMap(String json) {
+		return stringToObject(json, HashMap.class);
+	}
+
+	public static Object stringToJsonClass(String json, Class clazz) {
+		return stringToObject(json, clazz);
+	}
+
+	public static <T> T stringToObject(String jsonString, Class<T> valueType) {
+		try {
+			if(jsonString != null)
+				return new ObjectMapper().readValue(jsonString, valueType);
+			else
+				return valueType.newInstance();
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static String jsonToString(Object jsonObject) {
+		return objectToString(jsonObject);
+	}
+
+	public static String objectToString(Object json) {
+		ObjectMapper om = new ObjectMapper();
+		try {
+			return om.writeValueAsString(json);
+		} catch (JsonGenerationException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
 }

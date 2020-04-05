@@ -7,7 +7,6 @@
 	<th:block th:insert="comm/top :: top"> </th:block>
        <!-- Begin Page Content -->
     <div class="container-fluid">
-    	<form name="collectDetailForm" id="collectDetailForm" th:action="@{/manage/detail/save}" method="POST">
 			<div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-tasks"></i>&nbsp;수집원 세팅</h1>
           	</div>
@@ -27,71 +26,13 @@
 				</div>
 				<div class="col-4">
 					<label for="selectCollector">수집원</label>
-					<select class="form-control" id="selectCollector" name="pk" onchange="collectorSelect(this)">
+					<select class="form-control" id="selectCollector" name="pk" onchange="collectorSelect(this)"> 
 					  <option value="">선택</option>
 					</select>
 				</div>
 			</div>
-			<hr/>
-			<div class="form-group">
-				<label for="startUrl"><i class="fas fa-minus"></i> &nbsp;시작 URL</label>
-				<input type="text" class="form-control" id="startUrl" name="startUrl" placeholder="" >
-				<small class="form-text text-muted">홈페이지 게시판 첫페이지 ex) https://www.ictr.or.kr/main/board/notice.jsp</small>
-			</div>
-			<div class="form-group">
-				<label for="pageUrl"><i class="fas fa-minus"></i> &nbsp;페이지 URL</label>
-				<input type="text" class="form-control" id="pageUrl" name="pageUrl" placeholder="" >
-				<small class="form-text text-muted">ex) https://www.ictr.or.kr/main/bbs/bbsMsgList.do?bcd=notice&pgno=</small>
-			</div>
-				
-		
-			<div class="form-group">
-				<label for="contId"><i class="fas fa-minus"></i> &nbsp;게시물 ID</label>
-				<input type="text" class="form-control" id="contId" name="contId" placeholder="" >
-				<small class="form-text text-muted">게시물에 대한 ID값</small>
-			</div>
-			<div class="form-group">
-				<label><i class="fas fa-minus"></i> &nbsp;데이터 목록</label>
-				<input type="text" class="form-control" name="titleLink" placeholder="" >
-						<small class="form-text text-muted">컨텐츠 링크가 속한 상위 엘리먼트. ex) #detail_con > div.board_list > ul > li > p > a</small>
-			</div>
-			<div class="form-group">
-				<label><i class="fas fa-minus"></i> &nbsp;제목</label>
-				<input type="text" class="form-control" name="title" placeholder="" >
-				<small class="form-text text-muted">ex) #detail_con > div > div.title > p</small>
-			</div>
-			<div class="form-group">
-				<label><i class="fas fa-minus"></i> &nbsp;본문</label>
-				<input type="text" class="form-control" name="content" placeholder="" >
-				<small class="form-text text-muted">ex) #detail_con > div > div.con</small>
-			</div>
-			<div class="form-group">
-				<label><i class="fas fa-minus"></i> &nbsp;작성자</label>
-				<input type="text" class="form-control" name="writer" placeholder="" >
-				<small class="form-text text-muted">ex) //*[@id='detail_con']/div/ul[1]/li[1]/dl[1]/dd</small>
-			</div>
-			<div class="form-group form-row">
-				<div class="col">
-				<label><i class="fas fa-minus"></i> &nbsp;작성일</label>
-				<input type="text" class="form-control" name="writeDate" placeholder="" >
-				<small class="form-text text-muted">ex) //*[@id='detail_con']/div/ul[1]/li[1]/dl[2]/dd</small>
-				</div>
-				<div class="col">
-				<label><i class="fas fa-minus"></i> &nbsp;작성일 패턴</label>
-				<input type="text" class="form-control" name="wdatePattern" placeholder="" >
-				<small class="form-text text-muted">ex)2020년 03월 20일(금) 10:01:01 => yyyy년 MM월 dd일(E) HH:mm:ss</small>
-				</div>
-			</div>
-<!-- 			<div class="form-group"> -->
-<!-- 				<label><i class="fas fa-minus"></i> &nbsp;파일 목록</label> -->
-<!-- 				<input type="text" class="form-control" name="file" placeholder="" > -->
-<!-- 				<small class="form-text text-muted">ex) //*[@id='detail_con']/div/div[2]/dl/dd/ul/li</small> -->
-<!-- 			</div> -->
 			
-	<button type="button" class="btn btn-primary" onclick="formSubmit('collectDetailForm')"><i class="fas fa-check-circle"></i>&nbsp;저장</button>
-	</form>
-    
-    
+			<th:block th:if="${detailPage != null}" th:insert="${detailPage} :: div"> </th:block>
     </div>
 </div>
 
