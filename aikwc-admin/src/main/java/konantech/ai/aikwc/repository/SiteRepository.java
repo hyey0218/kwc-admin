@@ -25,6 +25,4 @@ public interface SiteRepository extends JpaRepository<Site, Integer> {
 			+ "where grp IN (select pk from kwc_group where agency=:agency)", nativeQuery = true)
 	public List<Site> getSiteListInAgency(@Param("agency")int agency);
 	
-	
-
 }

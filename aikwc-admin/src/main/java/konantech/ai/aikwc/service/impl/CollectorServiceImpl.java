@@ -1,53 +1,39 @@
 package konantech.ai.aikwc.service.impl;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
-import javax.persistence.EntityManager;
+import javax.annotation.Resource;
 
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.provider.HibernateUtils;
 import org.springframework.stereotype.Service;
 
-import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
-import konantech.ai.aikwc.entity.Agency;
-import konantech.ai.aikwc.entity.collectors.Collector;
-import konantech.ai.aikwc.entity.Group;
-import konantech.ai.aikwc.entity.Site;
-import konantech.ai.aikwc.repository.AgencyRepository;
-import konantech.ai.aikwc.repository.CollectorRepository;
-import konantech.ai.aikwc.repository.GroupRepository;
-import konantech.ai.aikwc.repository.SiteRepository;
-import konantech.ai.aikwc.repository.mapping.CollectorMapping;
+import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.service.CollectorService;
 
-
-@Service("collectorService")
-public class CollectorServiceImpl extends CollectorService<Collector> {
-	@Autowired
-	CollectorRepository collectorRepository;
+@Service("CollectorService")
+public class CollectorServiceImpl extends CollectorService<Collector>{
+	@Resource(name = "BasicCollectorService")
+	BasicCollectorServiceImpl collectorService;
 	
 	@Override
-	public Collector saveCollector(Collector collector){
-		return collectorRepository.save(collector);
+	public void saveCollectorDetail(int pk, Collector collector) {
 	}
+
 	@Override
-	public void saveCollectorDetail(Collector collector){
-		collectorRepository.save(collector);
+	public Collector getCollectorDetailInfo(int pk) {
+		// TODO Auto-generated method stub
+		return null;
 	}
-	@Override
-	public Collector getCollectorInfo(int pk) {
-		return collectorRepository.findById(pk).get();
-	}
+
 	@Override
 	public List<Collector> getAllCollectorList() {
-		return collectorRepository.findAll();
+		// TODO Auto-generated method stub
+		return null;
 	}
-	
-	
-	
+
+	@Override
+	public int webCrawl(Collector collector, String start, String end) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

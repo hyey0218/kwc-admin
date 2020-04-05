@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import konantech.ai.aikwc.common.config.AsyncConfig;
 import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.entity.Agency;
-import konantech.ai.aikwc.entity.collectors.Collector;
+import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.KLog;
 import konantech.ai.aikwc.entity.KTask;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
@@ -35,6 +35,7 @@ import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.CrawlService;
 import konantech.ai.aikwc.service.ScheduleService;
 import konantech.ai.aikwc.service.TaskService;
+import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
 
 @Controller
 @RequestMapping("simulator")
@@ -48,10 +49,8 @@ public class SimulatorController {
 	@Autowired
 	StatusWebSocketHandler statusHandler;
 	
-	@Resource(name = "collectorService")
-	CollectorService<Collector> collectorService;
 	@Resource(name = "BasicCollectorService")
-	CollectorService<BasicCollector> basicCollectorService;
+	BasicCollectorServiceImpl collectorService;
 	
 	@Autowired
 	ScheduleService scheduleService;
@@ -61,12 +60,12 @@ public class SimulatorController {
 	@RequestMapping("/list")
 	public String list(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
 			,Model model) {
-		Map map = commonService.commInfo(agencyNo);
-		Agency selAgency = (Agency) map.get("selAgency");
-		model.addAttribute("selAgency", selAgency);
-		model.addAttribute("agencyList", map.get("agencyList"));
-		model.addAttribute("groupList", map.get("groupList"));
-		model.addAttribute("agencyNo", selAgency.getPk());
+//		Map map = commonService.commInfo(agencyNo);
+//		Agency selAgency = (Agency) map.get("selAgency");
+//		model.addAttribute("selAgency", selAgency);
+//		model.addAttribute("agencyList", map.get("agencyList"));
+//		model.addAttribute("groupList", map.get("groupList"));
+//		model.addAttribute("agencyNo", selAgency.getPk());
 		model.addAttribute("menuNo", "1");
 		
 		return "sml/runJob";
@@ -111,10 +110,10 @@ public class SimulatorController {
 		
 		String agency = params.get("agencyNo");
 		List<CollectorMapping> result = new ArrayList<CollectorMapping>();
-		if(agency != null && !agency.equals("")) {
-			result = collectorService.getCollectorListInAgency(Integer.parseInt(agency));
-		}else
-			result = null;
+//		if(agency != null && !agency.equals("")) {
+//			result = collectorService.getCollectorListInAgency(Integer.parseInt(agency));
+//		}else
+		result = collectorService.getCollectorList();
 			
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", result);
@@ -128,14 +127,11 @@ public class SimulatorController {
 	public void getCrawl(@RequestBody Map<String,String> params) throws Exception {
 		
 		int pk = Integer.parseInt(params.get("pk"));
-		Collector selectedCollector = collectorService.getCollectorInfo(pk);
-		
-		Class collectorClass = Class.forName(selectedCollector.getPackageClassName());
 		
 		//1. update Running status / send websocket message
-		basicCollectorService.updateStatus(pk, "R");
+		collectorService.updateStatus(pk, "R");
 		
-		CompletableFuture cf = crawlService.webCrawlThread(collectorClass, pk, params.get("startPage"), params.get("endPage"));
+		CompletableFuture cf = crawlService.webCrawlThread(pk, params.get("startPage"), params.get("endPage"));
 		statusHandler.sendTaskCnt(asyncConfig.getTaskCount()+scheduleService.getTaskCount());
 		
 		CompletableFuture<Void> after = cf.handle((res,ex) -> {

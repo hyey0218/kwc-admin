@@ -21,7 +21,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import konantech.ai.aikwc.common.utils.CommonUtil;
 import konantech.ai.aikwc.entity.Agency;
+
+import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.Site;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
@@ -30,6 +33,7 @@ import konantech.ai.aikwc.repository.mapping.CollectorMapping;
 import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.FileService;
+import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
 
 @Controller
 @RequestMapping("/manage")
@@ -37,8 +41,8 @@ public class ManageController {
 	@Resource
 	CommonService commonService;
 	
-	@Resource(name = "collectorService")
-	CollectorService<Collector> collectorService;
+	@Resource(name = "BasicCollectorService")
+	BasicCollectorServiceImpl collectorService;
 	
 	@Autowired
 	private FileService fileService;
@@ -48,6 +52,7 @@ public class ManageController {
 	public String manageGroup(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
 			,@RequestParam(name = "menuNo", required = false, defaultValue = "1") String menuNo
 			,@RequestParam(name = "menuNm", required = false, defaultValue = "Group") String menuNm
+			,@RequestParam(name = "cpk", required = false) String cpk
 			, Model model) {
 		
 		Map map = commonService.commInfo(agencyNo);
@@ -65,6 +70,14 @@ public class ManageController {
 		}else if(menuNo.equals("3")) {
 			List<CollectorMapping> collectors = collectorService.getCollectorListInAgency(agencyNo);
 			model.addAttribute("collectorList",collectors);
+		}else if(menuNo.equals("4")) {
+			// collector viewname으로 세팅해야함
+			if(cpk == null) {
+				model.addAttribute("detailPage", "clt/collectors/dummyDetail");
+			}else {
+				model.addAttribute("detailPage", "clt/collectors/basicDetail");
+			}
+			
 		}
 		
 		return "clt/manage"+menuNm;
@@ -104,7 +117,6 @@ public class ManageController {
 	public String saveCollector(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
 			@ModelAttribute Collector collector,
 			Model model) {
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>Collector INSERT");
 		collectorService.saveCollector(collector);
 		
 		return "redirect:/manage";
@@ -142,12 +154,23 @@ public class ManageController {
 		collectorService.deleteGroup(group);;
 		return "redirect:/manage";
 	}
-	
+	@RequestMapping(value ="/detail/json", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> detailJsonTemplate(@RequestBody Map<String,String> params) throws Exception {
+		
+		Collector selectedCollector = collectorService.getCollector(Integer.parseInt(params.get("pk")));
+		Class collectorClass = Class.forName(selectedCollector.getPackageClassName());
+		String jsonstr = CommonUtil.jsonToString(collectorClass.newInstance());
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("result", jsonstr);
+		
+		return map;
+	}
 	@RequestMapping(value ="/detail/info", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> siteInfo(@RequestBody BasicCollector collector) {
+	public Map<String,Object> siteInfo(@RequestBody Collector collector) {
 		
-		Collector result = collectorService.getCollectorInfo(collector.getPk());
+		BasicCollector result = collectorService.getCollectorDetailInfo(collector.getPk());
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", result);
 		
@@ -155,10 +178,10 @@ public class ManageController {
 	}
 	@PostMapping("/detail/save")
 	public String saveCollectorDetail(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
-			@ModelAttribute Collector collector,
+			@ModelAttribute BasicCollector collector,
 			Model model) {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>detail INSERT");
-		collectorService.saveCollectorDetail(collector);
+		collectorService.saveCollectorDetail(Integer.parseInt(collector.getPk()), collector);
 		
 		return "redirect:/manage";
 	}

@@ -12,7 +12,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -25,33 +24,17 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import konantech.ai.aikwc.common.utils.CommonUtil;
-import konantech.ai.aikwc.common.utils.FileUtil;
 import konantech.ai.aikwc.entity.Crawl;
-import konantech.ai.aikwc.entity.KLog;
-import konantech.ai.aikwc.repository.CrawlRepository;
-import konantech.ai.aikwc.repository.KLogRepository;
 import konantech.ai.aikwc.service.FileService;
 
 @Service("fileService")
 public class FileServiceImpl implements FileService {
 
-	@Autowired
-	private FileUtil fileUtil;
-
-	@Autowired
-	private CrawlRepository crawlRepository;
-
-	@Autowired
-	private KLogRepository KLogRepository;
 
 	@Override
 	public void filedown(HttpServletRequest request, HttpServletResponse response, String fileId) throws Exception {
@@ -76,9 +59,7 @@ public class FileServiceImpl implements FileService {
 
 		Map<Integer, String> headers = rows.get(0);
 
-		if (headers.size() == fields.length) {
-			String enc = CommonUtil.getEncMd5("12345");
-		} else {
+		if (!(headers.size() == fields.length)) {
 			throw new Exception("엑셀이랑 엔티티 갯수 안맞음.");
 		}
 

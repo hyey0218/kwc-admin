@@ -40,6 +40,7 @@ function simulatorList(){
 	let res = getJSONAjaxMethod(requestUrl, "POST", jObj);
 	let retJson = res.result;
 	if(retJson){
+		console.log(retJson);
 		var $tbody = $("#simList");
 		$tbody.children().remove();
 		$(retJson).each(function(i,j){

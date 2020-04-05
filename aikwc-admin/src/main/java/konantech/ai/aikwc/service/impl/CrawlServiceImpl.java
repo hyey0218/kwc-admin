@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.common.utils.CommonUtil;
 import konantech.ai.aikwc.entity.Agency;
-import konantech.ai.aikwc.entity.collectors.Collector;
+import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.Crawl;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.repository.CrawlRepository;
@@ -39,88 +39,35 @@ import konantech.ai.aikwc.service.CrawlService;
 
 @Service("CrawlService")
 public class CrawlServiceImpl implements CrawlService {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	@Value("${chrome.web.driver.path}")
-	String driverPath;
-	
-	@Resource(name = "collectorService")
-	CollectorService<Collector> collectorService;
 	@Resource(name = "BasicCollectorService")
-	CollectorService<BasicCollector> basicCollectorService;
+	BasicCollectorServiceImpl collectorService;
 	
 	@Autowired
 	CommonService commonService;
 	
-	@Autowired
-	CrawlRepository crawlRepository;
-	
-	
-	@Async("kwcExecutor")
-	public CompletableFuture webCrawlThread(Class collector, int pk, String start, String end) throws Exception {
-		logger.info("start task");
+	public int callCollectorScrap(int pk, String start, String end) throws ClassNotFoundException {
 		int result = 1;
-		if(collector.isInstance(new BasicCollector())) {
-			BasicCollector c = basicCollectorService.getCollectorInfo(pk);
-			c.setStartPage(start);
-			c.setEndPage(end);
-			result = basicWeb(c);
-		}else {
-			
-		}
-		return CompletableFuture.completedFuture(result);
-	}
-
-	public int webCrawlDefault(Class collector, int pk, String start, String end) throws Exception {
-		logger.info("start task");
-		int result = 1;
-		if(collector.isInstance(new BasicCollector())) {
-			BasicCollector c = basicCollectorService.getCollectorInfo(pk);
-			c.setStartPage(start);
-			c.setEndPage(end);
-			result = basicWeb(c);
+		Collector selectedCollector = collectorService.getCollector(pk);
+		Class collectorClass = Class.forName(selectedCollector.getPackageClassName());
+		if(collectorClass.isInstance(new BasicCollector())) {
+			Collector c = collectorService.getCollector(pk);
+			result = collectorService.webCrawl(c,start,end);
 		}else {
 			
 		}
 		return result;
 	}
 	
-	public void preworkForCrawling(BasicCollector selectedCollector) {
-		Agency Agency = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
-		String agencyName = Agency.getName();
-		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
-		selectedCollector.setChannel("기관");
+	@Async("kwcExecutor")
+	public CompletableFuture webCrawlThread(int pk, String start, String end) throws Exception {
+		int result = 1;
+		callCollectorScrap( pk, start, end);
+		return CompletableFuture.completedFuture(result);
 	}
-	
-	public int basicWeb(BasicCollector collector) {
-		preworkForCrawling(collector);
-		logger.info("start task");
-		StringBuffer logBuffer = new StringBuffer();
-		String threadName = Thread.currentThread().getName();
-		String colInfo = collector.getToSite().getName() + "/" + collector.getName();
-		logBuffer.append("["+CommonUtil.getCurrentTimeStr("")+"] START TASK " + threadName ).append(" : " + colInfo +"\n");
-		
-		BasicCollectorKWC kwc = new BasicCollectorKWC(driverPath, collector);
-		//2. crawling 페이지별로  insert하는 크롤링
-//		int result = kwc.work(crawlRepository);
-		int result = kwc.crawlWeb(crawlRepository);
-		
-		String endTime = "["+CommonUtil.getCurrentTimeStr("")+"] ";
-		String sePage = collector.getStartPage() + " ~ " + collector.getEndPage();
-		//3. DB status update Success+Wait
-		if(result == 0) {
-			collectorService.updateStatus(collector.getPk(), "SW");
-			logBuffer.append(endTime+ Thread.currentThread().getName() +" : " +  colInfo +" [SUCCESS] : "+sePage+" page \n");
-			kwc.log.setComment(colInfo + " 수집 완료 [SUCCESS]");
-		}
-		else {
-			collectorService.updateStatus(collector.getPk(), "FW");
-			logBuffer.append(endTime+ Thread.currentThread().getName() +" : " +  colInfo +" [FAIL] : "+sePage+" page \n");
-			kwc.log.setComment(colInfo + " 수집 완료 : [FAIL]");
-		}
-		logBuffer.append("["+CommonUtil.getCurrentTimeStr("")+"] END TASK " + threadName ).append(" : " + colInfo);
-		kwc.log.setLogCont(logBuffer.toString());
-		kwc.insertLog(commonService);
+
+	public int webCrawlDefault(int pk, String start, String end) throws Exception {
+		int result = 1;
+		callCollectorScrap( pk, start, end);
 		return result;
 	}
 	

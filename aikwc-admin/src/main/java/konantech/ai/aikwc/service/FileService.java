@@ -14,5 +14,4 @@ public interface FileService {
 	
 	public void excelUpload(MultipartFile multipartFile) throws Exception;
 	
-	
 }
