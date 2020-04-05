@@ -1,8 +1,12 @@
 package konantech.ai.aikwc.common.utils;
 
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +81,26 @@ public class CommonUtil {
 		UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(uri);
 		MultiValueMap<String, String> map = uriComponentsBuilder.build().getQueryParams();
 		return StringUtils.defaultIfEmpty(map.getFirst(paramName), "");
+	}
+	
+	/**
+	 * @param text
+	 * @return MD5 인코딩
+	 */
+	public static String getEncMd5(String text) {
+		
+		MessageDigest md;
+		String encText = "";
+		try {
+			md = MessageDigest.getInstance("MD5");
+	        byte[] bytes = text.getBytes(Charset.forName("UTF-8"));
+	        md.update(bytes);
+	        encText = Base64.getEncoder().encodeToString(md.digest());
+		} catch (NoSuchAlgorithmException e) {
+			encText = text;
+			e.printStackTrace();
+		}
+		return encText;
 	}
 	
 	
