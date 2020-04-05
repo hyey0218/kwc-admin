@@ -47,3 +47,37 @@ function deleteSchedule(pk){
 	$form.appendTo('body').submit();
 	$form.remove();
 }
+
+function templeateDown(){
+	window.location.assign('/manage/filedown');
+}
+
+
+function uploadExcel() {
+	var form = $('#frm-upload');
+    
+    //formdata 생성
+    var formData = new FormData(form[0]);
+  	console.log(formData);
+    $.ajax({
+        url : '/manage/uploadMultiFile',
+        type : 'POST',
+        data : formData,
+        processData : false,
+        contentType : false,
+        beforeSend : function() {
+            console.log('jQeury ajax form submit beforeSend');
+        },
+        success : function(data) {
+            console.log('jQeury ajax form submit success');
+            alert(data.result);
+        }, 
+        error : function(data) {
+            console.log('jQeury ajax form submit error');
+        },
+        complete : function() {
+            console.log('jQeury ajax form submit complete');
+        }
+    });//end ajax
+    
+}

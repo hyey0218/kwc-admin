@@ -76,9 +76,13 @@
           </div>
           <div class="row justify-content-end mb-3">
             <div>
+              <form id="frm-upload" action="./uploadMultiFile" enctype="multipart/form-data" method="post">
+                <input type="file" name="file">
+              </form>
+              
 	          <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#scheduleModal" ><i class="fas fa-save fa-sm text-white-50"></i>등록</a>
-	          <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-upload fa-sm text-white-50"></i>업로드</a>
-	          <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i>다운로드</a>
+	          <a href="#" th:onclick="uploadExcel()" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-upload fa-sm text-white-50"></i>업로드</a>
+	          <a href="#" th:onclick="templeateDown()" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i>다운로드</a>
             </div>
           </div>
           

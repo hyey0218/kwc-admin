@@ -26,15 +26,20 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import konantech.ai.aikwc.entity.Crawl;
+import konantech.ai.aikwc.entity.KTask;
+import konantech.ai.aikwc.repository.KTaskRepository;
 import konantech.ai.aikwc.service.FileService;
 
 @Service("fileService")
 public class FileServiceImpl implements FileService {
 
+	@Autowired
+	KTaskRepository KTaskRepository;
 
 	@Override
 	public void filedown(HttpServletRequest request, HttpServletResponse response, String fileId) throws Exception {
@@ -45,7 +50,7 @@ public class FileServiceImpl implements FileService {
 	public void excelUpload(MultipartFile multipartFile) throws Exception {
 
 		List<Map<Integer, String>> rows = getRows(multipartFile);
-		Object ent = new Crawl();
+		Object ent = new KTask();
 		Field[] member = ent.getClass().getDeclaredFields();
 		int length = 0;
 		length = member.length;
@@ -63,76 +68,125 @@ public class FileServiceImpl implements FileService {
 			throw new Exception("엑셀이랑 엔티티 갯수 안맞음.");
 		}
 
-		ArrayList<Crawl> inputData = new ArrayList<Crawl>();
+		ArrayList<KTask> inputData = new ArrayList<KTask>();
 
 		for (int i = 1; i < rows.size(); i++) {
 			Map<Integer, String> row = rows.get(i);
-			Crawl vo = new Crawl();
+			KTask vo = new KTask();
 			for (Integer key : row.keySet()) {
 				switch (key) {
 				case 0:
-					vo.setIdx(Integer.parseInt(row.get(key)));
+					vo.setPk(Integer.parseInt(row.get(key)));
 					break;
 				case 1:
-					vo.setChannel(row.get(key));
+					vo.setAgency(row.get(key));
 					break;
 				case 2:
-					vo.setSiteName(row.get(key));
+					vo.setGrp(row.get(key));
 					break;
 				case 3:
-					vo.setBoardName(row.get(key));
-					break;
-				case 4:
-					vo.setUniqkey(row.get(key));
-					break;
-				case 5:
-					vo.setUrl(row.get(key));
-					break;
-				case 6:
-					vo.setTitle(row.get(key));
-					break;
-				case 7:
-					vo.setDoc(row.get(key));
-					break;
-				case 8:
-					vo.setWriteId(row.get(key));
-					break;
-				case 9:
-					vo.setWriteTime(null);
-					break;
-				case 10:
-					vo.setCrawledTime(null);
-					break;
-				case 11:
-					vo.setUpdateTime(null);
-					break;
-				case 12:
-					vo.setPseudo(row.get(key));
-					break;
-				case 13:
-					vo.setWtimeStr(row.get(key));
-					break;
-				case 14:
 					vo.setCollector(row.get(key));
 					break;
-				case 15:
-					vo.setUrl(row.get(key));
+				case 4:
+					vo.setCType(row.get(key));
 					break;
-
+				case 5:
+					vo.setStart(row.get(key));
+					break;
+				case 6:
+					vo.setEnd(row.get(key));
+					break;
+				case 7:
+					vo.setCycleCron(row.get(key));
+					break;
+				case 8:
+					vo.setStatus(row.get(key));
+					break;
+				case 9:
+					vo.setUseyn(row.get(key));
+					break;
+				case 10:
+					vo.setTaskNo(row.get(key));
+					break;
 				default:
 					throw new Exception("범위 벗어난 값 key: "+key);
 				}
 			}
 			inputData.add(vo);
 		}
-//		crawlRepository.saveAll(inputData);
+		
+//		ArrayList<Crawl> inputData = new ArrayList<Crawl>();
+//
+//		for (int i = 1; i < rows.size(); i++) {
+//			Map<Integer, String> row = rows.get(i);
+//			Crawl vo = new Crawl();
+//			for (Integer key : row.keySet()) {
+//				switch (key) {
+//				case 0:
+//					vo.setIdx(Integer.parseInt(row.get(key)));
+//					break;
+//				case 1:
+//					vo.setChannel(row.get(key));
+//					break;
+//				case 2:
+//					vo.setSiteName(row.get(key));
+//					break;
+//				case 3:
+//					vo.setBoardName(row.get(key));
+//					break;
+//				case 4:
+//					vo.setUniqkey(row.get(key));
+//					break;
+//				case 5:
+//					vo.setUrl(row.get(key));
+//					break;
+//				case 6:
+//					vo.setTitle(row.get(key));
+//					break;
+//				case 7:
+//					vo.setDoc(row.get(key));
+//					break;
+//				case 8:
+//					vo.setWriteId(row.get(key));
+//					break;
+//				case 9:
+//					vo.setWriteTime(null);
+//					break;
+//				case 10:
+//					vo.setCrawledTime(null);
+//					break;
+//				case 11:
+//					vo.setUpdateTime(null);
+//					break;
+//				case 12:
+//					vo.setPseudo(row.get(key));
+//					break;
+//				case 13:
+//					vo.setWtimeStr(row.get(key));
+//					break;
+//				case 14:
+//					vo.setCollector(row.get(key));
+//					break;
+//				case 15:
+//					vo.setUrl(row.get(key));
+//					break;
+//
+//				default:
+//					throw new Exception("범위 벗어난 값 key: "+key);
+//				}
+//			}
+//			inputData.add(vo);
+//		}
+		
+		KTaskRepository.saveAll(inputData);
 	}
 
 	@Override
 	public void excelTempleateDown(HttpServletRequest request, HttpServletResponse response, String templateId)
 			throws Exception {
 
-		Object ent = new Crawl();
+//		Object ent = new Crawl();
+		Object ent = new KTask();
 		Field[] member = ent.getClass().getDeclaredFields();
 		int length = 0;
 		length = member.length;
