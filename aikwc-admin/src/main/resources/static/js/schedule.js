@@ -38,12 +38,8 @@ function changeType(obj){
 function deleteSchedule(pk){
 	let isDel = confirm("삭제하시겠습니까?");
 	var $form = $("<form>");
-	var formdata = new FormData($form[0]);
 	if(isDel){
-		$form.attr('action','/simulator/schedule/delete');
-		$form.attr('method','POST');
-		$form.append($("<input>",{'type':'hidden', 'name':'pk', 'value': pk}) );
+		dummyFormSubmit('/simulator/schedule/delete', 'POST', {'pk' : pk});
 	}
-	$form.appendTo('body').submit();
-	$form.remove();
+	
 }

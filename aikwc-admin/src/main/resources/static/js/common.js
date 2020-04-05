@@ -83,11 +83,21 @@ function getJSONAjaxMethod(requestUrl, reqType, sendData){
  */
 function formSubmit(form){
 	var $form = $("#"+form);
-	var formData = new FormData($form[0]);
-	formData.append("agencyNo", $("#AGENCY").val());
-	formData.append("menuNo", $("#MENUNO").val());
-	formData.append("menuNm", $("#MENUMN").val());
+	$form.append($("<input>",{'type':'hidden', 'name':'agencyNo', 'value': _agencyNo}) );
+	$form.append($("<input>",{'type':'hidden', 'name':'menuNo', 'value': _menuNo}) );
 	$form.submit();
+}
+
+function dummyFormSubmit(url, reqType, sendData){ //sendData -> {}
+	var $form = $("<form>");
+	$form.attr('action',url);
+	$form.attr('method',reqType);
+	for(let k in sendData){
+		$form.append($("<input>",{'type':'hidden', 'name':k, 'value': sendData[k] }) );
+	}
+	$form.append($("<input>",{'type':'hidden', 'name':'agencyNo', 'value': _agencyNo}) );
+	$form.appendTo('body').submit();
+	$form.remove();
 }
 
 function pageInitialize(){
