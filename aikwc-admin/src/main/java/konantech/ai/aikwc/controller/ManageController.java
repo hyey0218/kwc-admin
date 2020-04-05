@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import konantech.ai.aikwc.common.utils.CommonUtil;
 import konantech.ai.aikwc.entity.Agency;
@@ -25,8 +29,8 @@ import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.Site;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.repository.mapping.CollectorMapping;
-import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
+import konantech.ai.aikwc.service.FileService;
 import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
 
 @Controller
@@ -37,6 +41,9 @@ public class ManageController {
 	
 	@Resource(name = "BasicCollectorService")
 	BasicCollectorServiceImpl collectorService;
+	
+	@Autowired
+	private FileService fileService;
 	
 	
 	@RequestMapping("")
@@ -197,4 +204,28 @@ public class ManageController {
 		
 		return "redirect:/manage";
 	}
+	
+	@RequestMapping(value = "/filedown", method = RequestMethod.GET)
+	public void downloadFile(HttpServletRequest request, HttpServletResponse response
+			, @RequestParam(required = false) String templateId ) throws Exception {
+		
+		fileService.excelTempleateDown(request, response, templateId);
+	}
+	
+	@RequestMapping(value = "/uploadMultiFile", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> uploadMultiFile(@RequestParam("file") MultipartFile file,
+			HttpServletRequest request, HttpServletResponse response) throws Exception{
+		ModelAndView mv = new ModelAndView();
+		fileService.excelUpload(file);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("result", "성공~");
+		return map;
+	}
+	
+	@RequestMapping("/sample")
+	public String main() {
+		return "sample";
+	}
+	
 }
