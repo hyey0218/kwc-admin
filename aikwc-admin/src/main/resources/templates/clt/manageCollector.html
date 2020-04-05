@@ -102,9 +102,9 @@
 				      <td th:text="${cObj.name}">지원사업</td>
 				      <td th:text="${cObj.useyn}">N</td>
 				      <td>
-				      	<a href="javascript:void(0)" th:onclick="getDetailJson([[${cObj.pk}]])">
-				      	<i class="fas fa-edit"></i>    </a>
-				      		&nbsp; <a><i class="fas fa-trash"></i></a></td>
+				      	<a href="javascript:void(0)" th:onclick="getDetailJson([[${cObj.pk}]])"><i class="fas fa-edit"></i></a>
+				      	<a href="javascript:void(0)" th:onclick="getDetailDelete([[${cObj.pk}]])"><i class="fas fa-trash"></i></a>
+				      </td>
 				    </tr>
                 </tbody>
                 </table>

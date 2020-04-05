@@ -37,6 +37,18 @@ public class BasicCollectorServiceImpl extends CollectorService<BasicCollector> 
 	
 	@Autowired
 	CommonService commonService;
+	
+	public void deleteCollector(Collector collector) {
+		basicCollectorRepository.delete(collector);
+	}
+	
+	public void saveCollectorDetail(Collector collector) {
+		Optional<Collector> op = basicCollectorRepository.findById(collector.getPk());
+		op.ifPresent(newer -> {
+			newer.setDetail(collector.getDetail());
+			basicCollectorRepository.save(newer);
+		});
+	}
 
 	@Override
 	public void saveCollectorDetail(int pk, BasicCollector collector) {

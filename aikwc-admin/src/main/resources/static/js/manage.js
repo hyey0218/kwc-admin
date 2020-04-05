@@ -35,4 +35,16 @@ function getDetailJson(pk){
 	jObj.pk = pk;
 	let retJson = getJSONAjaxMethod(requestUrl, "POST", jObj).result;
 	console.log(retJson);
+	let form = $("#cltDetailForm")[0];
+	$(form).find('[name=pk]').val(pk);
+	$(form).find('[name=detail]').val(retJson);
+	$("#cltDetail").modal('show');
+}
+
+function getDetailDelete(pk){
+	let isDel = confirm("삭제하시겠습니까?");
+	var $form = $("<form>");
+	if(isDel){
+		dummyFormSubmit('/manage/detail/delete', 'POST', {'pk' : pk});
+	}
 }

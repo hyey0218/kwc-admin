@@ -157,12 +157,33 @@ public class ManageController {
 		
 		Collector selectedCollector = collectorService.getCollector(Integer.parseInt(params.get("pk")));
 		Class collectorClass = Class.forName(selectedCollector.getPackageClassName());
-		String jsonstr = CommonUtil.jsonToString(collectorClass.newInstance());
+		Object ddd = (Object) CommonUtil.stringToJsonClass(selectedCollector.getDetail(), collectorClass);
+		String jsonstr = CommonUtil.jsonToString(ddd);
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("result", jsonstr);
 		
 		return map;
 	}
+	@PostMapping("/detail/json/save")
+	public String saveCollectorDetail(
+			@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
+			@ModelAttribute Collector collector,
+			Model model) {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>detail INSERT");
+		collectorService.saveCollectorDetail(collector);
+		return "redirect:/manage?agencyNo="+agencyNo+"&menuNo=3&menuNm=Collector";
+	}
+	@PostMapping("/detail/delete")
+	public String deleteCollector(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
+			@ModelAttribute Collector collector,
+			Model model) {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>detail INSERT");
+		collectorService.deleteCollector(collector);
+		
+		return "redirect:/manage?agencyNo="+agencyNo+"&menuNo=3&menuNm=Collector";
+	}
+	
+	
 	@RequestMapping(value ="/detail/info", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String,Object> siteInfo(@RequestBody Collector collector) {
