@@ -64,10 +64,6 @@ public class CollectorServiceImpl implements CollectorService{
 	}
 	public List<CollectorMapping> getCollectorListInAgency(int agency){
 		return collectorRepository.findInAgency(agency);
-//		String jpql = "select pk,className,viewName,code,name,ctrtStart,ctrtEnd,useyn,status,dtype,site,dtype,param1,param2 "
-//				+ "from Collector c where c.site in ("
-//				+ "select s.pk from Site s where s.grp in ( "
-//				+ "select g.pk from Group g where g.agency = "+agency+"))";
 	}
 	public List<CollectorMapping> getCollectorList(){
 		return collectorRepository.findAllList();

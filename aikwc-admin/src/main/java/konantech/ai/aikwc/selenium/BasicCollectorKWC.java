@@ -3,6 +3,7 @@ package konantech.ai.aikwc.selenium;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
@@ -26,6 +27,7 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 	private By writeDate;
 	private By content;
 	
+	private CrawlRepository repository;
 
 	public BasicCollectorKWC() {}
 	public BasicCollectorKWC(String driverPath, Collector collector) {
@@ -48,6 +50,7 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 
 	@Override
 	public int work(CrawlRepository repository) throws Exception {
+		this.repository = repository;
 		this.startUrl = c.getPageUrl();
 		this.titleLink = By.xpath(c.getTitleLink());
 		this.title = By.xpath(c.getTitle());
@@ -101,7 +104,8 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 					webDriver.navigate().back();
 					Thread.sleep(3000);
 				}
-				repository.saveAll(dataList);
+//				repository.saveAll(dataList);
+				insertData(dataList);
 				c.setEndPage(String.valueOf(page));
 			}
 			
@@ -117,4 +121,15 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 		return 0;
 	}
 	
+	
+	public void insertData(List<Crawl> dataList) {
+		dataList.forEach((data) -> {
+			Optional<Crawl> op = repository.findByHashed(data.getHashed());
+			if(op.isPresent()) {
+				System.out.println(">>>>>>중복");
+				data.setIdx(op.get().getIdx());
+			}
+			repository.save(data);
+		});
+	}
 }

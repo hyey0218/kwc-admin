@@ -3,6 +3,7 @@ package konantech.ai.aikwc.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -24,9 +25,11 @@ import org.springframework.web.servlet.ModelAndView;
 import konantech.ai.aikwc.common.utils.CommonUtil;
 import konantech.ai.aikwc.entity.Agency;
 import konantech.ai.aikwc.entity.Collector;
+import konantech.ai.aikwc.entity.Crawl;
 import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.Site;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
+import konantech.ai.aikwc.repository.CrawlRepository;
 import konantech.ai.aikwc.repository.mapping.CollectorMapping;
 import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
@@ -222,9 +225,5 @@ public class ManageController {
 		return map;
 	}
 	
-	@RequestMapping("/sample")
-	public String main() {
-		return "sample";
-	}
 	
 }
