@@ -49,6 +49,9 @@ public class CrawlServiceImpl implements CrawlService {
 	CommonService commonService;
 	@Value("${chrome.web.driver.path}")
 	String driverPath;
+	
+	@Autowired
+	CrawlRepository crawlRepository;
 		
 	public int callCollectorScrap(int pk, String start, String end) throws Exception {
 		int result = 1;
@@ -60,8 +63,15 @@ public class CrawlServiceImpl implements CrawlService {
 		cls.setMyCollector(selectedCollector.getDetail());
 		selectedCollector.setStartPage(start);
 		selectedCollector.setEndPage(end);
-		result = collectorService.webCrawl(selectedCollector,cls);
-		
+		/////////////////////////////////////////////////////////////
+		KWCSelenium kwc = (KWCSelenium) cls;
+		preworkForCrawling(selectedCollector);
+		result = kwc.crawlWeb(crawlRepository);
+		if(result == 0) {
+			collectorService.updateStatus(selectedCollector.getPk(), "SW");
+		}else {
+			collectorService.updateStatus(selectedCollector.getPk(), "FW");
+		}
 		return result;
 	}
 	
@@ -71,11 +81,16 @@ public class CrawlServiceImpl implements CrawlService {
 		callCollectorScrap( pk, start, end);
 		return CompletableFuture.completedFuture(result);
 	}
-
 	public int webCrawlDefault(int pk, String start, String end) throws Exception {
 		int result = 1;
 		callCollectorScrap( pk, start, end);
 		return result;
 	}
 	
+	public void preworkForCrawling(Collector selectedCollector) {
+		Agency Agency = collectorService.getAgencyNameForCollector(selectedCollector.getToSite().getGroup().getAgency());
+		String agencyName = Agency.getName();
+		selectedCollector.getToSite().getGroup().setAgencyName(agencyName);
+		selectedCollector.setChannel("기관");
+	}
 }
