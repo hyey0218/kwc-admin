@@ -35,7 +35,6 @@ import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.CrawlService;
 import konantech.ai.aikwc.service.ScheduleService;
 import konantech.ai.aikwc.service.TaskService;
-import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
 
 @Controller
 @RequestMapping("simulator")
@@ -49,8 +48,8 @@ public class SimulatorController {
 	@Autowired
 	StatusWebSocketHandler statusHandler;
 	
-	@Resource(name = "BasicCollectorService")
-	BasicCollectorServiceImpl collectorService;
+	@Resource(name = "CollectorService")
+	CollectorService collectorService;
 	
 	@Autowired
 	ScheduleService scheduleService;
@@ -60,12 +59,6 @@ public class SimulatorController {
 	@RequestMapping("/list")
 	public String list(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo
 			,Model model) {
-//		Map map = commonService.commInfo(agencyNo);
-//		Agency selAgency = (Agency) map.get("selAgency");
-//		model.addAttribute("selAgency", selAgency);
-//		model.addAttribute("agencyList", map.get("agencyList"));
-//		model.addAttribute("groupList", map.get("groupList"));
-//		model.addAttribute("agencyNo", selAgency.getPk());
 		model.addAttribute("menuNo", "1");
 		
 		return "sml/runJob";
@@ -160,6 +153,5 @@ public class SimulatorController {
 		taskService.deleteTask(task);
 		return "redirect:/simulator/schedule";
 	}
-	
 }
 

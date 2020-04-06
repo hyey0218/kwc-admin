@@ -25,7 +25,7 @@ import konantech.ai.aikwc.selenium.BasicCollectorKWC;
 import konantech.ai.aikwc.selenium.KWCSelenium;
 
 
-public abstract class CollectorService<T> {
+public abstract class CollectorService {
 	@Autowired
 	private GroupRepository groupRepository;
 	@Autowired
@@ -39,6 +39,17 @@ public abstract class CollectorService<T> {
 	@Autowired
 	EntityManager em;
 	
+	public void deleteCollector(Collector collector) {
+		collectorRepository.delete(collector);
+	}
+	
+	public void saveCollectorDetail(Collector collector) {
+		Optional<Collector> op = collectorRepository.findById(collector.getPk());
+		op.ifPresent(newer -> {
+			newer.setDetail(collector.getDetail());
+			collectorRepository.save(newer);
+		});
+	}
 	public Collector getCollector(int pk) {
 		return collectorRepository.findById(pk).get();
 	}
@@ -105,12 +116,5 @@ public abstract class CollectorService<T> {
 		collectorRepository.save(collector);
 	}
 	
-	//////////////////////////////////////////
-	public abstract void saveCollectorDetail(int pk, T collector);
-	
-	public abstract T getCollectorDetailInfo(int pk);
-	
-	public abstract List<T> getAllCollectorList();
-	
-	public abstract int webCrawl(Collector collector, String start, String end);
+	public abstract int webCrawl(Collector collector, Object kwc);
 }

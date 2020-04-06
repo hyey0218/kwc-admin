@@ -24,7 +24,7 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 	@Override
 	public void onApplicationEvent(ApplicationStartedEvent event) {
 		System.out.println("###########Start Event - AppStartListener#############");
-//		taskCheck();
+		taskCheck();
 	}
 	
 	public void taskCheck() {

@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import konantech.ai.aikwc.common.utils.FileUtil;
 import konantech.ai.aikwc.entity.Crawl;
 import konantech.ai.aikwc.entity.KTask;
 import konantech.ai.aikwc.repository.KTaskRepository;
@@ -254,7 +255,7 @@ public class FileServiceImpl implements FileService {
 //			cell.setCellValue("내용3");
 //		}
 		response.setContentType("ms-vnd/excel");
-		String browser = getBrowser(request);
+		String browser = FileUtil.getBrowser(request);
 		String disposition = getDisposition("template.xlsx", browser);
 		response.setHeader("Content-Disposition", disposition);
 		wb.write(response.getOutputStream());
@@ -282,17 +283,6 @@ public class FileServiceImpl implements FileService {
 		}
 		workbook.close();
 		return rows;
-	}
-
-	private String getBrowser(HttpServletRequest request) {
-		String header = request.getHeader("User-Agent");
-		if (header.indexOf("MSIE") > -1 || header.indexOf("Trident") > -1)
-			return "MSIE";
-		else if (header.indexOf("Chrome") > -1)
-			return "Chrome";
-		else if (header.indexOf("Opera") > -1)
-			return "Opera";
-		return "Firefox";
 	}
 
 	private String getDisposition(String filename, String browser) throws UnsupportedEncodingException {

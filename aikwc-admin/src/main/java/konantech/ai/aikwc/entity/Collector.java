@@ -61,12 +61,15 @@ public class Collector{
 	String param1;
 	@Column
 	String param2;
-	
 	@Column
 	String detail;
 	
 	@Transient
 	String channel;
+	@Transient
+	String startPage;
+	@Transient
+	String endPage;
 	
 	@ManyToOne(optional = false)//fetch = FetchType.LAZY
 	@JoinColumn(name = "site", referencedColumnName = "pk",insertable = false, updatable = false)

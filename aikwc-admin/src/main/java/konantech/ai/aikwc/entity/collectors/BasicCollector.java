@@ -16,6 +16,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * json 컬럼에 매핑될 객체 
+ * 멤버 변수만 사용할 것
+ * @author hyeyoon.cho
+ *
+ */
 @Getter
 @Setter
 public class BasicCollector{
@@ -33,8 +39,5 @@ public class BasicCollector{
 	String writeDate;
 	String contId;
 	
-	
-//	public BasicCollector getJsonToObject() {
-//		return (BasicCollector) CommonUtil.stringToJsonClass(this.detail, BasicCollector.class);
-//	}
+
 }

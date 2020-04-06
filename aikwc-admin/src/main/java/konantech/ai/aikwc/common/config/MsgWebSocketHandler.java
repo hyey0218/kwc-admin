@@ -37,8 +37,6 @@ public class MsgWebSocketHandler extends TextWebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		sessionList.add(session);
-//		String agency = CommonUtil.getUriParamValue(session.getUri().toString(),"agency");
-//		sendLogMassage(agency);
 	}
 
 	@Override

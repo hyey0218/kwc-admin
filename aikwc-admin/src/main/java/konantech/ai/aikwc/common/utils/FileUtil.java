@@ -41,7 +41,7 @@ public class FileUtil {
 		}
 	}
 
-	private String getBrowser(HttpServletRequest request) {
+	public static String getBrowser(HttpServletRequest request) {
 		String header = request.getHeader("User-Agent");
 		if (header.indexOf("MSIE") > -1 || header.indexOf("Trident") > -1)
 			return "MSIE";
@@ -51,6 +51,7 @@ public class FileUtil {
 			return "Opera";
 		return "Firefox";
 	}
+	
 
 	private String getDisposition(String filename, String browser) throws UnsupportedEncodingException {
 		String dispositionPrefix = "attachment;filename=";

@@ -53,7 +53,7 @@ public class Crawl {
 	@Column
 	String collector;
 	@Column
-	String urlHash;
+	String hashed;
 	
 	public Crawl() {}
 	@Builder

@@ -25,22 +25,29 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 	private By writer;
 	private By writeDate;
 	private By content;
+	
 
-	public BasicCollectorKWC(String driverPath, Collector collector, BasicCollector bc) {
-		super(driverPath, collector, bc);
+	public BasicCollectorKWC() {}
+	public BasicCollectorKWC(String driverPath, Collector collector) {
+		super(driverPath, collector);
+	}
+	public void setMyCollector(String jsonStr) {
+		BasicCollector my = (BasicCollector) CommonUtil.stringToJsonClass(jsonStr, BasicCollector.class);
+		super.c = my;
 	}
 
 	@Override
 	public void prework() throws Exception {
-//		if(collector instanceof BasicCollector)
-//		this.c = (BasicCollector) collector;
-//	else
-//		throw new Exception("Collector 형변환 오류");
-//	if(repository instanceof CrawlRepository)
-//		repo = (CrawlRepository) repository;
-//	else
-//		throw new Exception("CrawlRepository 형변환 오류");
-	
+		System.out.println("BasicCollectorKWC START");
+	}
+
+	@Override
+	public void afterwork() {
+		System.out.println("BasicCollectorKWC END");
+	}
+
+	@Override
+	public int work(CrawlRepository repository) throws Exception {
 		this.startUrl = c.getPageUrl();
 		this.titleLink = By.xpath(c.getTitleLink());
 		this.title = By.xpath(c.getTitle());
@@ -49,14 +56,6 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 		this.writeDate = By.xpath(c.getWriteDate());
 		this.log.setAgency(collector.getToSite().getGroup().getAgency());
 		openBrowser();
-	}
-
-	@Override
-	public void afterwork() {
-	}
-
-	@Override
-	public int work(CrawlRepository repository) throws Exception {
 		int startPage = Integer.parseInt(c.getStartPage());
 		int endPage = Integer.parseInt(c.getEndPage());
 		boolean isTimePattern = StringUtils.containsAny(c.getWdatePattern(), "Hms");
@@ -85,6 +84,9 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 						obj.setUniqkey(webDriver.findElement(By.xpath(c.getContId())).getAttribute("value"));
 					else
 						obj.setUniqkey(CommonUtil.getUriParamValue(webDriver.getCurrentUrl(), c.getContId()));
+					
+					String hashed = webDriver.getCurrentUrl()+obj.getUniqkey();
+					obj.setHashed(CommonUtil.getEncMd5(hashed));
 					//본문내용
 					obj.setTitle(webDriver.findElement(title).getText());
 					obj.setDoc(webDriver.findElement(content).getText());

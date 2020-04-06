@@ -37,12 +37,13 @@ public abstract class KWCSelenium<T>{
 	
 	public KLog log;
 	
-	public KWCSelenium(String driverPath, Collector collector, T c) {
+	public KWCSelenium() {}
+	public KWCSelenium(String driverPath, Collector collector) {
 		this.driverPath = driverPath;
 		this.log = new KLog();
 		this.collector = collector;
-		this.c = c;
 	}
+	public abstract void setMyCollector(String jsonStr);
 	
 	public void openBrowser() throws Exception{
 		System.setProperty("webdriver.chrome.driver", driverPath); 

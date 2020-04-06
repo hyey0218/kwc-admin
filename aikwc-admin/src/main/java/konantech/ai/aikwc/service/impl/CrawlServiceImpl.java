@@ -2,6 +2,8 @@ package konantech.ai.aikwc.service.impl;
 
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import konantech.ai.aikwc.common.CommonConstants;
 import konantech.ai.aikwc.common.config.StatusWebSocketHandler;
 import konantech.ai.aikwc.common.utils.CommonUtil;
 import konantech.ai.aikwc.entity.Agency;
@@ -39,22 +42,26 @@ import konantech.ai.aikwc.service.CrawlService;
 
 @Service("CrawlService")
 public class CrawlServiceImpl implements CrawlService {
-	@Resource(name = "BasicCollectorService")
-	BasicCollectorServiceImpl collectorService;
+	@Resource(name = "CollectorService")
+	CollectorService collectorService;
 	
 	@Autowired
 	CommonService commonService;
-	
-	public int callCollectorScrap(int pk, String start, String end) throws ClassNotFoundException {
+	@Value("${chrome.web.driver.path}")
+	String driverPath;
+		
+	public int callCollectorScrap(int pk, String start, String end) throws Exception {
 		int result = 1;
 		Collector selectedCollector = collectorService.getCollector(pk);
-		Class collectorClass = Class.forName(selectedCollector.getPackageClassName());
-		if(collectorClass.isInstance(new BasicCollector())) {
-			Collector c = collectorService.getCollector(pk);
-			result = collectorService.webCrawl(c,start,end);
-		}else {
-			
-		}
+		Class[] constructorTypes = {String.class, Collector.class};
+		Object[] constructorParams = {driverPath, selectedCollector};
+		Constructor constructor = Class.forName(CommonConstants.SELENIUM_PACKAGE+selectedCollector.getClassName()+"KWC").getConstructor(constructorTypes);
+		KWCSelenium cls = (KWCSelenium) constructor.newInstance(constructorParams);
+		cls.setMyCollector(selectedCollector.getDetail());
+		selectedCollector.setStartPage(start);
+		selectedCollector.setEndPage(end);
+		result = collectorService.webCrawl(selectedCollector,cls);
+		
 		return result;
 	}
 	

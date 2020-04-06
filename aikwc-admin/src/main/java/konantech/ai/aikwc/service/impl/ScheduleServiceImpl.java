@@ -28,9 +28,8 @@ public class ScheduleServiceImpl implements ScheduleService{
 	@Autowired
 	CrawlService crawlService;
 	
-	@Resource(name = "BasicCollectorService")
-	BasicCollectorServiceImpl collectorService;
-	
+	@Resource(name = "CollectorService")
+	CollectorService collectorService;
 	
 	private Map<String, ScheduledFuture<?>> scheduleMap = new ConcurrentHashMap<>();
 	

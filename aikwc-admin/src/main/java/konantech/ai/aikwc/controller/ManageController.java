@@ -28,9 +28,9 @@ import konantech.ai.aikwc.entity.Group;
 import konantech.ai.aikwc.entity.Site;
 import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.repository.mapping.CollectorMapping;
+import konantech.ai.aikwc.service.CollectorService;
 import konantech.ai.aikwc.service.CommonService;
 import konantech.ai.aikwc.service.FileService;
-import konantech.ai.aikwc.service.impl.BasicCollectorServiceImpl;
 
 @Controller
 @RequestMapping("/manage")
@@ -38,8 +38,8 @@ public class ManageController {
 	@Resource
 	CommonService commonService;
 	
-	@Resource(name = "BasicCollectorService")
-	BasicCollectorServiceImpl collectorService;
+	@Resource(name = "CollectorService")
+	CollectorService collectorService;
 	
 	@Autowired
 	private FileService fileService;
@@ -184,25 +184,25 @@ public class ManageController {
 	}
 	
 	
-	@RequestMapping(value ="/detail/info", method = RequestMethod.POST)
-	@ResponseBody
-	public Map<String,Object> siteInfo(@RequestBody Collector collector) {
-		
-		BasicCollector result = collectorService.getCollectorDetailInfo(collector.getPk());
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("result", result);
-		
-		return map;
-	}
-	@PostMapping("/detail/save")
-	public String saveCollectorDetail(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
-			@ModelAttribute BasicCollector collector,
-			Model model) {
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>detail INSERT");
-		collectorService.saveCollectorDetail(Integer.parseInt(collector.getPk()), collector);
-		
-		return "redirect:/manage";
-	}
+//	@RequestMapping(value ="/detail/info", method = RequestMethod.POST)
+//	@ResponseBody
+//	public Map<String,Object> siteInfo(@RequestBody Collector collector) {
+//		
+//		BasicCollector result = collectorService.getCollectorDetailInfo(collector.getPk());
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		map.put("result", result);
+//		
+//		return map;
+//	}
+//	@PostMapping("/detail/save")
+//	public String saveCollectorDetail(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
+//			@ModelAttribute BasicCollector collector,
+//			Model model) {
+//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>detail INSERT");
+//		collectorService.saveCollectorDetail(Integer.parseInt(collector.getPk()), collector);
+//		
+//		return "redirect:/manage";
+//	}
 	
 	@RequestMapping(value = "/filedown", method = RequestMethod.GET)
 	public void downloadFile(HttpServletRequest request, HttpServletResponse response
