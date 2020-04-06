@@ -61,10 +61,6 @@ public class CommonServiceImpl implements CommonService {
 	public void readAllLog() {
 		logRepository.updateRead();
 	}
-	
-	public List<KLog> getAgencyLogList(String agency){
-		return logRepository.findByAgencyOrderByCreateDateDesc(agency);
-	}
 	public List<KLog> getAllLog(){
 		return logRepository.findAllByOrderByCreateDateDesc();
 	}

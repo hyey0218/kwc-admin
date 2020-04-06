@@ -28,8 +28,6 @@ public class KLog {
 	@Column
 	String type;
 	@Column
-	String agency;
-	@Column
 	String logCont;
 	@Column
 	String comment;
@@ -47,22 +45,6 @@ public class KLog {
 	String param3;
 	
 	public KLog() {}
-	@Builder
-	public KLog(String type, String agency, String logCont, String comment, LocalDateTime createDate, String readyn, String delyn,
-			String param1, String param2, String param3) {
-		super();
-		this.type = type;
-		this.agency = agency;
-		this.logCont = logCont;
-		this.comment = comment;
-		this.createDate = createDate;
-		this.readyn = readyn;
-		this.delyn = delyn;
-		this.param1 = param1;
-		this.param2 = param2;
-		this.param3 = param3;
-	}
-
 	@PrePersist
 	public void create() {
 		this.createDate = LocalDateTime.now();

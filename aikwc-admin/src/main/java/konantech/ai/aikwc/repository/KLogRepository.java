@@ -19,12 +19,11 @@ public interface KLogRepository extends JpaRepository<KLog, String> {
 			+ "where `readyn` = 'N' and `agency` = :agency", nativeQuery = true)
 	public List<KLog> findByAgencyNotRead(@Param("agency") String agency, Pageable sort);
 	
-	@Query(value = "select pk,type,agency,log_cont,comment, DATE_FORMAT(create_date, '%Y-%m-%d %h:%i:%s') as create_date"
+	@Query(value = "select pk,type,log_cont,comment, DATE_FORMAT(create_date, '%Y-%m-%d %h:%i:%s') as create_date"
 			+ ", readyn, delyn from kwc_log  "
 			+ "where `readyn` = :readyn ", nativeQuery = true)
 	public List<Map<String, String>> findByReadyn(@Param("readyn") String readyn, Pageable sort);
 	
-	public List<KLog> findByAgencyOrderByCreateDateDesc(@Param("agency") String agency);
 	public List<KLog> findAllByOrderByCreateDateDesc();
 	
 	public Long countByReadyn(@Param("readyn") String readyn);

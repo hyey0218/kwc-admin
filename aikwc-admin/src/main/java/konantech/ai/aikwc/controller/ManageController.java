@@ -119,6 +119,7 @@ public class ManageController {
 			Model model) {
 		collectorService.saveCollector(collector);
 		
+		model.addAttribute("agencyNo", agencyNo);
 		return "redirect:/manage";
 	}
 	
@@ -129,6 +130,7 @@ public class ManageController {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>SITE INSERT");
 		collectorService.saveSite(site);
 		
+		model.addAttribute("agencyNo", agencyNo);
 		return "redirect:/manage";
 	}
 	
@@ -137,6 +139,8 @@ public class ManageController {
 			@ModelAttribute Group group,
 			Model model) {
 		collectorService.saveGroup(group);
+		
+		model.addAttribute("agencyNo", agencyNo);
 		return "redirect:/manage";
 	}
 	@PostMapping("/group/edit")
@@ -151,7 +155,9 @@ public class ManageController {
 	public String deleteGroup(@RequestParam(name = "agencyNo", required = false, defaultValue = "0") Integer agencyNo,
 			@ModelAttribute Group group,
 			Model model) {
-		collectorService.deleteGroup(group);;
+		collectorService.deleteGroup(group);
+		
+		model.addAttribute("agencyNo", agencyNo);
 		return "redirect:/manage";
 	}
 	@RequestMapping(value ="/detail/json", method = RequestMethod.POST)

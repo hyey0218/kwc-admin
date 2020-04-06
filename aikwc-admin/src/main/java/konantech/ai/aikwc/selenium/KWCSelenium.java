@@ -15,10 +15,11 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ThreadGuard;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import konantech.ai.aikwc.entity.Collector;
 import konantech.ai.aikwc.entity.KLog;
@@ -26,8 +27,11 @@ import konantech.ai.aikwc.entity.collectors.BasicCollector;
 import konantech.ai.aikwc.repository.CrawlRepository;
 import konantech.ai.aikwc.repository.KLogRepository;
 import konantech.ai.aikwc.service.CommonService;
+import org.apache.commons.lang.StringUtils;
 
 public abstract class KWCSelenium<T>{
+	
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private String driverPath;
 //	private ChromeDriver webDriver;
@@ -35,14 +39,18 @@ public abstract class KWCSelenium<T>{
 	protected Collector collector;
 	protected T c;
 	
-	public KLog log;
-	
 	public KWCSelenium() {}
 	public KWCSelenium(String driverPath, Collector collector) {
 		this.driverPath = driverPath;
-		this.log = new KLog();
 		this.collector = collector;
 	}
+	public String getEndPage() {
+		return StringUtils.defaultIfEmpty(collector.getEndPage(), "");
+	}
+	public String getStartPage() {
+		return StringUtils.defaultIfEmpty(collector.getStartPage(), "");
+	}
+	
 	public abstract void setMyCollector(String jsonStr);
 	
 	public void openBrowser() throws Exception{
@@ -92,14 +100,6 @@ public abstract class KWCSelenium<T>{
 			closeBrowser();
 		}
 		return ret;
-	}
-	/**
-	 * 로그 테이블 적재
-	 */
-	public void insertLog(CommonService service) {
-		if(!StringUtils.isEmpty(log.getAgency()) ) {
-			service.saveLog(log);
-		}
 	}
 	
 }

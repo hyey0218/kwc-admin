@@ -41,29 +41,31 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 	@Override
 	public void prework() throws Exception {
 		System.out.println("BasicCollectorKWC START");
-	}
-
-	@Override
-	public void afterwork() {
-		System.out.println("BasicCollectorKWC END");
-	}
-
-	@Override
-	public int work(CrawlRepository repository) throws Exception {
-		this.repository = repository;
+		logger.info("BasicCollectorKWC START");
 		this.startUrl = c.getPageUrl();
 		this.titleLink = By.xpath(c.getTitleLink());
 		this.title = By.xpath(c.getTitle());
 		this.content = By.xpath(c.getContent());
 		this.writer = By.xpath(c.getWriter());
 		this.writeDate = By.xpath(c.getWriteDate());
-		this.log.setAgency(collector.getToSite().getGroup().getAgency());
 		openBrowser();
-		int startPage = Integer.parseInt(c.getStartPage());
-		int endPage = Integer.parseInt(c.getEndPage());
+		logger.info(" PK : "+ c.getPk()+ ", page : " + collector.getStartPage() +" ~ " + collector.getEndPage());
+	}
+
+	@Override
+	public void afterwork() {
+		System.out.println("BasicCollectorKWC END");
+		logger.info("BasicCollectorKWC END");
+	}
+
+	@Override
+	public int work(CrawlRepository repository) throws Exception {
+		this.repository = repository;
+		int startPage = Integer.parseInt(collector.getStartPage());
+		int endPage = Integer.parseInt(collector.getEndPage());
 		boolean isTimePattern = StringUtils.containsAny(c.getWdatePattern(), "Hms");
 		boolean idIsXpath = StringUtils.startsWith(c.getContId(), "//");
-		c.setEndPage("");
+		collector.setEndPage(""); // 성공 페이지 다시 담을꺼임
 		try {
 			for(int page =startPage ; page <= endPage; page++) {
 				webDriver.get(startUrl+page);
@@ -97,16 +99,14 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 					try {
 						obj.setWriteTime(CommonUtil.stringToLocalDateTime(webDriver.findElement(writeDate).getText(), c.getWdatePattern(),isTimePattern) );
 					}catch(java.time.format.DateTimeParseException de){
-//								System.out.println("****************** DateTimeParseException ********************");
 						obj.setWtimeStr(webDriver.findElement(writeDate).getText());
 					}
 					dataList.add(obj);
 					webDriver.navigate().back();
 					Thread.sleep(3000);
 				}
-//				repository.saveAll(dataList);
 				insertData(dataList);
-				c.setEndPage(String.valueOf(page));
+				collector.setEndPage(String.valueOf(page));
 			}
 			
 //		}catch(org.openqa.selenium.NoSuchElementException ex) { //
@@ -126,7 +126,6 @@ public class BasicCollectorKWC extends KWCSelenium<BasicCollector> {
 		dataList.forEach((data) -> {
 			Optional<Crawl> op = repository.findByHashed(data.getHashed());
 			if(op.isPresent()) {
-				System.out.println(">>>>>>중복");
 				data.setIdx(op.get().getIdx());
 			}
 			repository.save(data);

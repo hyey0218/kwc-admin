@@ -16,7 +16,6 @@ public interface CommonService {
 	public void saveLog(KLog log);
 	public void readAllLog();
 	
-	public List<KLog> getAgencyLogList(String agency);
 	public List<KLog> getAllLog();
 	public List<Agency> getAgencyAll();
 	

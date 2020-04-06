@@ -29,8 +29,6 @@ public class BasicCollector{
 	String hashed;
 	String startUrl;
 	String pageUrl;
-	String startPage;
-	String endPage;
 	String titleLink;
 	String title;
 	String content;
